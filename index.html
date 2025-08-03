@@ -19,17 +19,18 @@
         .banner-slide:nth-child(2) { animation-delay: 4s; }
         .banner-slide:nth-child(3) { animation-delay: 8s; }
 
-        /* Flash sale product rotation */
+        /* Flash sale product display */
         .flash-sale-slide {
-            animation: flashSlide 10s infinite ease-in-out;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            position: absolute;
+            width: 100%;
         }
-        @keyframes flashSlide {
-            0%, 33.33% { opacity: 1; transform: translateY(0); }
-            40%, 60% { opacity: 0; transform: translateY(20px); }
-            66.66%, 100% { opacity: 0; transform: translateY(-20px); }
+        .flash-sale-slide.active {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .flash-sale-slide:nth-child(2) { animation-delay: 3.33s; }
-        .flash-sale-slide:nth-child(3) { animation-delay: 6.66s; }
 
         /* Lightning bolt animation */
         .lightning {
@@ -64,6 +65,9 @@
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
+        .product-btn {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Default shadow for grid items */
+        }
         .selected {
             background-color: rgba(59, 130, 246, 0.2); /* Blue theme with transparency */
             border-color: #3b82f6;
@@ -95,6 +99,14 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Navigation buttons for flash sale */
+        .nav-btn {
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background-color: #2563eb;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -117,23 +129,18 @@
             <div class="mb-6">
                 <h2 class="text-xl font-bold text-center mb-4 text-gray-800">Flash Sale</h2>
                 <div class="relative w-full h-20 overflow-hidden">
-                    <button class="flash-sale-btn flash-sale-slide absolute flex items-center justify-center bg-yellow-100 p-4 rounded-xl w-full" data-product="MLA" data-denom="86 Diamonds" data-price="18000">
-                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    <div id="flashSaleContainer"></div>
+                </div>
+                <div class="flex justify-between mt-2">
+                    <button id="prevFlashSale" class="nav-btn bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
-                        <span class="font-semibold text-gray-800">Limited Offer: 86 Diamonds (MLA) for Rp18,000!</span>
                     </button>
-                    <button class="flash-sale-btn flash-sale-slide absolute flex items-center justify-center bg-yellow-100 p-4 rounded-xl w-full opacity-0" data-product="MLB" data-denom="172 Diamonds" data-price="36000">
-                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    <button id="nextFlashSale" class="nav-btn bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
-                        <span class="font-semibold text-gray-800">Limited Offer: 172 Diamonds (MLB) for Rp36,000!</span>
-                    </button>
-                    <button class="flash-sale-btn flash-sale-slide absolute flex items-center justify-center bg-yellow-100 p-4 rounded-xl w-full opacity-0" data-product="WDP" data-denom="50 Diamonds" data-price="12000">
-                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span class="font-semibold text-gray-800">Limited Offer: 50 Diamonds (WDP) for Rp12,000!</span>
                     </button>
                 </div>
             </div>
@@ -222,15 +229,17 @@
     </footer>
 
     <script>
-        // Load products and denominations from JSON
+        // Load data from JSON files
         async function loadData() {
             try {
-                const [productsRes, denominationsRes] = await Promise.all([
+                const [productsRes, denominationsRes, flashSalesRes] = await Promise.all([
                     fetch('/data/products.json'),
-                    fetch('/data/denominations.json')
+                    fetch('/data/denominations.json'),
+                    fetch('/data/flashsales.json')
                 ]);
                 const products = await productsRes.json();
                 const denominations = await denominationsRes.json();
+                const flashSales = await flashSalesRes.json();
 
                 // Populate product grid
                 const productGrid = document.getElementById('productGrid');
@@ -250,14 +259,52 @@
                     </button>
                 `).join('');
 
-                // Re-attach event listeners for product buttons
+                // Populate flash sale
+                const flashSaleContainer = document.getElementById('flashSaleContainer');
+                flashSaleContainer.innerHTML = flashSales.map((sale, index) => `
+                    <button class="flash-sale-btn flash-sale-slide ${index === 0 ? 'active' : ''} flex items-center justify-center bg-yellow-100 p-4 rounded-xl" data-product="${sale.product}" data-denom="${sale.denom}" data-price="${sale.price}">
+                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="font-semibold text-gray-800">${sale.text}</span>
+                    </button>
+                `).join('');
+
+                // Flash sale navigation
+                let currentFlashSaleIndex = 0;
+                const flashSaleButtons = document.querySelectorAll('.flash-sale-btn');
+                const prevFlashSale = document.getElementById('prevFlashSale');
+                const nextFlashSale = document.getElementById('nextFlashSale');
+
+                function updateFlashSale() {
+                    flashSaleButtons.forEach((btn, index) => {
+                        btn.classList.toggle('active', index === currentFlashSaleIndex);
+                    });
+                }
+
+                prevFlashSale.addEventListener('click', () => {
+                    currentFlashSaleIndex = (currentFlashSaleIndex - 1 + flashSales.length) % flashSales.length;
+                    updateFlashSale();
+                });
+
+                nextFlashSale.addEventListener('click', () => {
+                    currentFlashSaleIndex = (currentFlashSaleIndex + 1) % flashSales.length;
+                    updateFlashSale();
+                });
+
+                // Auto-cycle flash sale
+                setInterval(() => {
+                    currentFlashSaleIndex = (currentFlashSaleIndex + 1) % flashSales.length;
+                    updateFlashSale();
+                }, 5000); // Cycle every 5 seconds
+
+                // Re-attach event listeners
                 document.querySelectorAll('.product-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         switchPage(orderFormPage, homePage, button.dataset.product);
                     });
                 });
 
-                // Re-attach event listeners for denomination buttons
                 document.querySelectorAll('.denom-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         denomButtons.forEach(btn => btn.classList.remove('selected'));
@@ -265,6 +312,12 @@
                         denominationInput.value = button.dataset.denom;
                         priceInput.value = button.dataset.price;
                         validateForm();
+                    });
+                });
+
+                flashSaleButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        switchPage(orderFormPage, homePage, button.dataset.product, button.dataset.denom, button.dataset.price);
                     });
                 });
             } catch (error) {
@@ -276,7 +329,6 @@
         const homePage = document.getElementById('homePage');
         const orderFormPage = document.getElementById('orderFormPage');
         const productTitle = document.getElementById('productTitle');
-        const flashSaleButtons = document.querySelectorAll('.flash-sale-btn');
         const backBtn = document.getElementById('backBtn');
 
         function switchPage(show, hide, product, denom = '', price = '') {
@@ -296,12 +348,6 @@
                 }
             }, 500);
         }
-
-        flashSaleButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                switchPage(orderFormPage, homePage, button.dataset.product, button.dataset.denom, button.dataset.price);
-            });
-        });
 
         backBtn.addEventListener('click', () => {
             switchPage(homePage, orderFormPage);
@@ -355,7 +401,7 @@
             const userId = userIdInput.value.trim();
             const serverId = serverIdInput.value.trim();
 
-            // Clear previous timeout to prevent multiple simultaneous requests
+            // Clear previous timeout
             if (validationTimeout) {
                 clearTimeout(validationTimeout);
             }
@@ -370,7 +416,6 @@
             submitBtn.disabled = true;
 
             if (userId && serverId) {
-                // Debounce to avoid rapid API calls
                 validationTimeout = setTimeout(async () => {
                     try {
                         const url = `https://dev.luckycat.my.id/api/stalker/mobile-legend?users=${encodeURIComponent(userId)}&servers=${encodeURIComponent(serverId)}`;
@@ -407,7 +452,7 @@
                         userIdSpinner.style.display = 'none';
                         serverIdSpinner.style.display = 'none';
                     }
-                }, 500); // 500ms debounce
+                }, 500);
             } else {
                 userIdSpinner.style.display = 'none';
                 serverIdSpinner.style.display = 'none';
