@@ -19,7 +19,19 @@
         .banner-slide:nth-child(2) { animation-delay: 4s; }
         .banner-slide:nth-child(3) { animation-delay: 8s; }
 
-        /* Lightning bolt animation for flash sale */
+        /* Flash sale product rotation */
+        .flash-sale-slide {
+            animation: flashSlide 10s infinite ease-in-out;
+        }
+        @keyframes flashSlide {
+            0%, 33.33% { opacity: 1; transform: translateY(0); }
+            40%, 60% { opacity: 0; transform: translateY(20px); }
+            66.66%, 100% { opacity: 0; transform: translateY(-20px); }
+        }
+        .flash-sale-slide:nth-child(2) { animation-delay: 3.33s; }
+        .flash-sale-slide:nth-child(3) { animation-delay: 6.66s; }
+
+        /* Lightning bolt animation */
         .lightning {
             animation: flash 1s infinite;
         }
@@ -28,13 +40,33 @@
             25%, 75% { transform: translateY(-5px); opacity: 0.7; }
         }
 
-        /* Smooth hover effects for buttons */
-        .product-btn, .flash-sale-btn {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Loading spinner for validation */
+        .spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
         }
-        .product-btn:hover, .flash-sale-btn:hover {
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Smooth hover and selected effects */
+        .product-btn, .flash-sale-btn, .denom-btn, .payment-btn {
+            transition: all 0.3s ease;
+        }
+        .product-btn:hover, .flash-sale-btn:hover, .denom-btn:hover, .payment-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .selected {
+            background-color: rgba(59, 130, 246, 0.2); /* Blue theme with transparency */
+            border-color: #3b82f6;
         }
 
         /* Fade transition for page switching */
@@ -45,18 +77,29 @@
             animation: fadeOut 0.5s ease-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* Validation message animation */
+        .validation-message {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateY(5px);
+        }
+        .validation-message.show {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-blue-600 text-white py-4">
+    <header class="bg-blue-600 text-white py-4 shadow-md">
         <h1 class="text-3xl font-bold text-center">Tsukoyomi Store</h1>
     </header>
 
@@ -64,7 +107,7 @@
         <!-- Homepage -->
         <div id="homePage" class="block">
             <!-- Banner -->
-            <div class="relative w-full h-48 mb-6 overflow-hidden rounded-lg">
+            <div class="relative w-full h-48 mb-6 overflow-hidden rounded-xl shadow-lg">
                 <img src="/images/banners/banner1.jpg" class="banner-slide absolute w-full h-full object-cover" alt="Banner 1">
                 <img src="/images/banners/banner2.jpg" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 2">
                 <img src="/images/banners/banner3.jpg" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 3">
@@ -72,60 +115,48 @@
 
             <!-- Flash Sale -->
             <div class="mb-6">
-                <h2 class="text-xl font-bold text-center mb-4">Flash Sale</h2>
-                <button class="flash-sale-btn flex items-center justify-center bg-yellow-100 p-4 rounded-lg w-full" data-product="MLA" data-denom="86 Diamonds" data-price="18000">
-                    <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    <span class="font-semibold">Limited Offer: 86 Diamonds (MLA) for Rp18,000!</span>
-                </button>
+                <h2 class="text-xl font-bold text-center mb-4 text-gray-800">Flash Sale</h2>
+                <div class="relative w-full h-20 overflow-hidden">
+                    <button class="flash-sale-btn flash-sale-slide absolute flex items-center justify-center bg-yellow-100 p-4 rounded-xl w-full" data-product="MLA" data-denom="86 Diamonds" data-price="18000">
+                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="font-semibold text-gray-800">Limited Offer: 86 Diamonds (MLA) for Rp18,000!</span>
+                    </button>
+                    <button class="flash-sale-btn flash-sale-slide absolute flex items-center justify-center bg-yellow-100 p-4 rounded-xl w-full opacity-0" data-product="MLB" data-denom="172 Diamonds" data-price="36000">
+                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="font-semibold text-gray-800">Limited Offer: 172 Diamonds (MLB) for Rp36,000!</span>
+                    </button>
+                    <button class="flash-sale-btn flash-sale-slide absolute flex items-center justify-center bg-yellow-100 p-4 rounded-xl w-full opacity-0" data-product="WDP" data-denom="50 Diamonds" data-price="12000">
+                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="font-semibold text-gray-800">Limited Offer: 50 Diamonds (WDP) for Rp12,000!</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Product Grid -->
-            <h2 class="text-2xl font-bold text-center mb-8">Our Products</h2>
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLA">
-                    <img src="/images/products/mla.png" class="w-10 h-10 mr-2" alt="MLA">
-                    <span>MLA</span>
-                </button>
-                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLB">
-                    <img src="/images/products/mlb.png" class="w-10 h-10 mr-2" alt="MLB">
-                    <span>MLB</span>
-                </button>
-                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="WDP">
-                    <img src="/images/products/wdp.png" class="w-10 h-10 mr-2" alt="WDP">
-                    <span>WDP</span>
-                </button>
-                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="GIFT SKIN">
-                    <img src="/images/products/gift-skin.png" class="w-10 h-10 mr-2" alt="GIFT SKIN">
-                    <span>GIFT SKIN</span>
-                </button>
-            </div>
+            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Our Products</h2>
+            <div id="productGrid" class="grid grid-cols-2 gap-4 mb-8"></div>
 
             <!-- Website Description -->
             <div class="text-center mb-8">
-                <h3 class="text-lg font-semibold mb-2">About Tsukoyomi Store</h3>
-                <p class="text-gray-700">Welcome to Tsukoyomi Store, your trusted destination for Mobile Legends: Bang Bang (MLBB) gift skins and top-ups. We offer a variety of products including MLA, MLB, WDP, and exclusive gift skins at competitive prices. Enjoy fast and secure transactions with our easy-to-use platform!</p>
+                <h3 class="text-lg font-semibold mb-2 text-gray-800">About Tsukoyomi Store</h3>
+                <p class="text-gray-600">Welcome to Tsukoyomi Store, your trusted destination for Mobile Legends: Bang Bang (MLBB) gift skins and top-ups. We offer a variety of products including MLA, MLB, WDP, and exclusive gift skins at competitive prices. Enjoy fast and secure transactions with our easy-to-use platform!</p>
             </div>
         </div>
 
         <!-- Order Form -->
         <div id="orderFormPage" class="hidden">
-            <h1 class="text-2xl font-bold text-center mb-6">Order <span id="productTitle"></span></h1>
-            <form id="orderForm" class="bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Order <span id="productTitle"></span></h1>
+            <form id="orderForm" class="bg-white p-6 rounded-xl shadow-lg">
                 <!-- Denomination Selection -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-2">Select Denomination</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="86 Diamonds" data-price="20000">
-                            <img src="/images/denominations/86-diamonds.png" alt="86 Diamonds" class="w-8 h-8 mr-2">
-                            <span>86 Diamonds</span>
-                        </button>
-                        <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="172 Diamonds" data-price="40000">
-                            <img src="/images/denominations/172-diamonds.png" alt="172 Diamonds" class="w-8 h-8 mr-2">
-                            <span>172 Diamonds</span>
-                        </button>
-                    </div>
+                    <div id="denomGrid" class="grid grid-cols-2 gap-2"></div>
                     <input type="hidden" id="denomination" name="denomination" required>
                     <input type="hidden" id="price" name="price" required>
                 </div>
@@ -133,11 +164,17 @@
                 <!-- User ID and Server -->
                 <div class="mb-4">
                     <label for="userId" class="block text-gray-700 font-semibold mb-2">User ID</label>
-                    <input type="text" id="userId" name="userId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Enter User ID" required>
+                    <div class="flex items-center">
+                        <input type="text" id="userId" name="userId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter User ID" required>
+                        <div id="userIdSpinner" class="spinner"></div>
+                    </div>
                 </div>
                 <div class="mb-4">
                     <label for="serverId" class="block text-gray-700 font-semibold mb-2">Server ID</label>
-                    <input type="text" id="serverId" name="serverId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Enter Server ID" required>
+                    <div class="flex items-center">
+                        <input type="text" id="serverId" name="serverId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Server ID" required>
+                        <div id="serverIdSpinner" class="spinner"></div>
+                    </div>
                 </div>
                 <div class="mb-4">
                     <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
@@ -148,18 +185,18 @@
                     <input type="text" id="region" name="region" class="w-full p-2 border rounded bg-gray-100" readonly>
                 </div>
                 <div class="mb-4">
-                    <p id="validationMessage" class="text-sm mt-1"></p>
+                    <p id="validationMessage" class="text-sm mt-1 validation-message"></p>
                 </div>
 
                 <!-- Payment Method Selection -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-2">Select Payment Method</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="QRIS">
+                        <button type="button" class="payment-btn flex items-center p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-payment="QRIS">
                             <img src="/images/payments/qris.png" alt="QRIS" class="w-8 h-8 mr-2">
                             <span>QRIS</span>
                         </button>
-                        <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="Bank Transfer">
+                        <button type="button" class="payment-btn flex items-center p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-payment="Bank Transfer">
                             <img src="/images/payments/bank-transfer.png" alt="Bank Transfer" class="w-8 h-8 mr-2">
                             <span>Bank Transfer</span>
                         </button>
@@ -169,8 +206,8 @@
 
                 <!-- Submit and Back Buttons -->
                 <div class="flex gap-2">
-                    <button type="button" id="backBtn" class="w-1/2 bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition-colors">Back</button>
-                    <button type="submit" id="submitBtn" class="w-1/2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors" disabled>Proceed to WhatsApp</button>
+                    <button type="button" id="backBtn" class="w-1/2 bg-gray-500 text-white p-2 rounded-xl hover:bg-gray-600 transition-colors">Back</button>
+                    <button type="submit" id="submitBtn" class="w-1/2 bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition-colors" disabled>Proceed to WhatsApp</button>
                 </div>
             </form>
         </div>
@@ -185,12 +222,61 @@
     </footer>
 
     <script>
+        // Load products and denominations from JSON
+        async function loadData() {
+            try {
+                const [productsRes, denominationsRes] = await Promise.all([
+                    fetch('/data/products.json'),
+                    fetch('/data/denominations.json')
+                ]);
+                const products = await productsRes.json();
+                const denominations = await denominationsRes.json();
+
+                // Populate product grid
+                const productGrid = document.getElementById('productGrid');
+                productGrid.innerHTML = products.map(product => `
+                    <button class="product-btn bg-blue-500 text-white p-4 rounded-xl flex items-center justify-center" data-product="${product.name}">
+                        <img src="${product.image}" class="w-10 h-10 mr-2" alt="${product.name}">
+                        <span>${product.name}</span>
+                    </button>
+                `).join('');
+
+                // Populate denomination grid
+                const denomGrid = document.getElementById('denomGrid');
+                denomGrid.innerHTML = denominations.map(denom => `
+                    <button type="button" class="denom-btn flex items-center p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-denom="${denom.name}" data-price="${denom.price}">
+                        <img src="${denom.image}" alt="${denom.name}" class="w-8 h-8 mr-2">
+                        <span>${denom.name}</span>
+                    </button>
+                `).join('');
+
+                // Re-attach event listeners for product buttons
+                document.querySelectorAll('.product-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        switchPage(orderFormPage, homePage, button.dataset.product);
+                    });
+                });
+
+                // Re-attach event listeners for denomination buttons
+                document.querySelectorAll('.denom-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        denomButtons.forEach(btn => btn.classList.remove('selected'));
+                        button.classList.add('selected');
+                        denominationInput.value = button.dataset.denom;
+                        priceInput.value = button.dataset.price;
+                        validateForm();
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
         // Page navigation with fade animation
         const homePage = document.getElementById('homePage');
         const orderFormPage = document.getElementById('orderFormPage');
         const productTitle = document.getElementById('productTitle');
-        const productButtons = document.querySelectorAll('.product-btn');
-        const flashSaleButton = document.querySelector('.flash-sale-btn');
+        const flashSaleButtons = document.querySelectorAll('.flash-sale-btn');
         const backBtn = document.getElementById('backBtn');
 
         function switchPage(show, hide, product, denom = '', price = '') {
@@ -205,20 +291,16 @@
                 if (denom && price) {
                     denominationInput.value = denom;
                     priceInput.value = price;
-                    document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('bg-blue-200');
+                    document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('selected');
                     validateForm();
                 }
             }, 500);
         }
 
-        productButtons.forEach(button => {
+        flashSaleButtons.forEach(button => {
             button.addEventListener('click', () => {
-                switchPage(orderFormPage, homePage, button.dataset.product);
+                switchPage(orderFormPage, homePage, button.dataset.product, button.dataset.denom, button.dataset.price);
             });
-        });
-
-        flashSaleButton.addEventListener('click', () => {
-            switchPage(orderFormPage, homePage, flashSaleButton.dataset.product, flashSaleButton.dataset.denom, flashSaleButton.dataset.price);
         });
 
         backBtn.addEventListener('click', () => {
@@ -231,9 +313,12 @@
             usernameInput.value = '';
             regionInput.value = '';
             validationMessage.textContent = '';
+            validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
             submitBtn.disabled = true;
-            document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('bg-blue-200'));
-            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('bg-blue-200'));
+            document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
+            userIdSpinner.style.display = 'none';
+            serverIdSpinner.style.display = 'none';
         });
 
         // Handle denomination selection
@@ -241,24 +326,14 @@
         const denominationInput = document.getElementById('denomination');
         const priceInput = document.getElementById('price');
 
-        denomButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                denomButtons.forEach(btn => btn.classList.remove('bg-blue-200'));
-                button.classList.add('bg-blue-200');
-                denominationInput.value = button.dataset.denom;
-                priceInput.value = button.dataset.price;
-                validateForm();
-            });
-        });
-
         // Handle payment method selection
         const paymentButtons = document.querySelectorAll('.payment-btn');
         const paymentInput = document.getElementById('paymentMethod');
 
         paymentButtons.forEach(button => {
             button.addEventListener('click', () => {
-                paymentButtons.forEach(btn => btn.classList.remove('bg-blue-200'));
-                button.classList.add('bg-blue-200');
+                paymentButtons.forEach(btn => btn.classList.remove('selected'));
+                button.classList.add('selected');
                 paymentInput.value = button.dataset.payment;
                 validateForm();
             });
@@ -271,44 +346,73 @@
         const regionInput = document.getElementById('region');
         const validationMessage = document.getElementById('validationMessage');
         const submitBtn = document.getElementById('submitBtn');
+        const userIdSpinner = document.getElementById('userIdSpinner');
+        const serverIdSpinner = document.getElementById('serverIdSpinner');
+
+        let validationTimeout = null;
 
         async function validateUser() {
             const userId = userIdInput.value.trim();
             const serverId = serverIdInput.value.trim();
 
-            if (userId && serverId) {
-                try {
-                    const url = `https://dev.luckycat.my.id/api/stalker/mobile-legend?users=${userId}&servers=${serverId}`;
-                    const response = await fetch(url);
-                    const data = await response.json();
+            // Clear previous timeout to prevent multiple simultaneous requests
+            if (validationTimeout) {
+                clearTimeout(validationTimeout);
+            }
 
-                    if (data.status && data.data && data.data.nickname && data.data.country) {
-                        usernameInput.value = data.data.nickname;
-                        regionInput.value = data.data.country;
-                        validationMessage.textContent = 'Username and region validated successfully!';
-                        validationMessage.classList.remove('text-red-500');
-                        validationMessage.classList.add('text-green-500');
-                        validateForm();
-                    } else {
+            // Show spinners
+            userIdSpinner.style.display = userId ? 'inline-block' : 'none';
+            serverIdSpinner.style.display = serverId ? 'inline-block' : 'none';
+            validationMessage.textContent = '';
+            validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
+            usernameInput.value = '';
+            regionInput.value = '';
+            submitBtn.disabled = true;
+
+            if (userId && serverId) {
+                // Debounce to avoid rapid API calls
+                validationTimeout = setTimeout(async () => {
+                    try {
+                        const url = `https://dev.luckycat.my.id/api/stalker/mobile-legend?users=${encodeURIComponent(userId)}&servers=${encodeURIComponent(serverId)}`;
+                        const response = await fetch(url);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        const data = await response.json();
+
+                        if (data.status === true && data.data && typeof data.data.nickname === 'string' && typeof data.data.country === 'string') {
+                            usernameInput.value = data.data.nickname;
+                            regionInput.value = data.data.country;
+                            validationMessage.textContent = 'Username and region validated successfully!';
+                            validationMessage.classList.remove('text-red-500');
+                            validationMessage.classList.add('text-green-500', 'show');
+                            validateForm();
+                        } else {
+                            usernameInput.value = '';
+                            regionInput.value = '';
+                            validationMessage.textContent = 'Invalid User ID or Server ID';
+                            validationMessage.classList.remove('text-green-500');
+                            validationMessage.classList.add('text-red-500', 'show');
+                            submitBtn.disabled = true;
+                        }
+                    } catch (error) {
                         usernameInput.value = '';
                         regionInput.value = '';
-                        validationMessage.textContent = 'Invalid User ID or Server ID';
+                        validationMessage.textContent = 'Error validating username and region. Please try again.';
                         validationMessage.classList.remove('text-green-500');
-                        validationMessage.classList.add('text-red-500');
+                        validationMessage.classList.add('text-red-500', 'show');
                         submitBtn.disabled = true;
+                        console.error('Validation error:', error);
+                    } finally {
+                        userIdSpinner.style.display = 'none';
+                        serverIdSpinner.style.display = 'none';
                     }
-                } catch (error) {
-                    usernameInput.value = '';
-                    regionInput.value = '';
-                    validationMessage.textContent = 'Error validating username and region. Please try again.';
-                    validationMessage.classList.remove('text-green-500');
-                    validationMessage.classList.add('text-red-500');
-                    submitBtn.disabled = true;
-                }
+                }, 500); // 500ms debounce
             } else {
-                usernameInput.value = '';
-                regionInput.value = '';
+                userIdSpinner.style.display = 'none';
+                serverIdSpinner.style.display = 'none';
                 validationMessage.textContent = '';
+                validationMessage.classList.remove('show');
                 submitBtn.disabled = true;
             }
         }
@@ -341,6 +445,9 @@
             const whatsappUrl = `https://wa.me/+6281234567890?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
         });
+
+        // Load data on page load
+        loadData();
     </script>
 </body>
 </html>
