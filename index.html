@@ -57,6 +57,20 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Order count animation */
+        .order-count {
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        .order-count.update {
+            animation: pulse 0.5s ease;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
         /* Smooth hover and selected effects */
         .product-btn, .flash-sale-btn, .denom-btn, .payment-btn {
             transition: all 0.3s ease;
@@ -66,10 +80,10 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         .product-btn {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Default shadow for grid items */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .selected {
-            background-color: rgba(59, 130, 246, 0.2); /* Blue theme with transparency */
+            background-color: rgba(59, 130, 246, 0.2);
             border-color: #3b82f6;
         }
 
@@ -106,6 +120,33 @@
         }
         .nav-btn:hover {
             background-color: #2563eb;
+        }
+
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            animation: popupIn 0.3s ease;
+        }
+        @keyframes popupIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
@@ -218,6 +259,18 @@
                 </div>
             </form>
         </div>
+
+        <!-- Confirmation Popup -->
+        <div id="confirmationPopup" class="popup">
+            <div class="popup-content">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Confirm Your Order</h2>
+                <div id="popupContent" class="text-gray-700 mb-6"></div>
+                <div class="flex gap-2">
+                    <button id="cancelPopup" class="w-1/2 bg-gray-500 text-white p-2 rounded-xl hover:bg-gray-600 transition-colors">Cancel</button>
+                    <button id="confirmPopup" class="w-1/2 bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition-colors">Confirm</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -229,13 +282,23 @@
     </footer>
 
     <script>
-        // Load data from JSON files
+        // Mock API for order counts (replace with actual endpoint if available)
+        async function fetchOrderCounts() {
+            // Simulate API response
+            return {
+                "86 Diamonds": 1504,
+                "172 Diamonds": 800
+            };
+        }
+
+        // Load data from JSON files and order counts
         async function loadData() {
             try {
-                const [productsRes, denominationsRes, flashSalesRes] = await Promise.all([
+                const [productsRes, denominationsRes, flashSalesRes, orderCounts] = await Promise.all([
                     fetch('/data/products.json'),
                     fetch('/data/denominations.json'),
-                    fetch('/data/flashsales.json')
+                    fetch('/data/flashsales.json'),
+                    fetchOrderCounts()
                 ]);
                 const products = await productsRes.json();
                 const denominations = await denominationsRes.json();
@@ -250,14 +313,34 @@
                     </button>
                 `).join('');
 
-                // Populate denomination grid
+                // Populate denomination grid with order counts
                 const denomGrid = document.getElementById('denomGrid');
                 denomGrid.innerHTML = denominations.map(denom => `
-                    <button type="button" class="denom-btn flex items-center p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-denom="${denom.name}" data-price="${denom.price}">
-                        <img src="${denom.image}" alt="${denom.name}" class="w-8 h-8 mr-2">
-                        <span>${denom.name}</span>
+                    <button type="button" class="denom-btn flex items-center justify-between p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-denom="${denom.name}" data-price="${denom.price}">
+                        <div class="flex items-center">
+                            <img src="${denom.image}" alt="${denom.name}" class="w-8 h-8 mr-2">
+                            <span>${denom.name}</span>
+                        </div>
+                        <span class="order-count text-sm text-gray-500" data-denom="${denom.name}">
+                            ${orderCounts[denom.name] || 0} orders
+                        </span>
                     </button>
                 `).join('');
+
+                // Simulate order count updates
+                setInterval(async () => {
+                    const newOrderCounts = await fetchOrderCounts();
+                    document.querySelectorAll('.order-count').forEach(countEl => {
+                        const denom = countEl.dataset.denom;
+                        const currentCount = parseInt(countEl.textContent) || 0;
+                        const newCount = newOrderCounts[denom] || currentCount;
+                        if (newCount !== currentCount) {
+                            countEl.textContent = `${newCount} orders`;
+                            countEl.classList.add('update');
+                            setTimeout(() => countEl.classList.remove('update'), 500);
+                        }
+                    });
+                }, 10000); // Update every 10 seconds
 
                 // Populate flash sale
                 const flashSaleContainer = document.getElementById('flashSaleContainer');
@@ -296,7 +379,7 @@
                 setInterval(() => {
                     currentFlashSaleIndex = (currentFlashSaleIndex + 1) % flashSales.length;
                     updateFlashSale();
-                }, 5000); // Cycle every 5 seconds
+                }, 5000);
 
                 // Re-attach event listeners
                 document.querySelectorAll('.product-btn').forEach(button => {
@@ -305,7 +388,8 @@
                     });
                 });
 
-                document.querySelectorAll('.denom-btn').forEach(button => {
+                const denomButtons = document.querySelectorAll('.denom-btn');
+                denomButtons.forEach(button => {
                     button.addEventListener('click', () => {
                         denomButtons.forEach(btn => btn.classList.remove('selected'));
                         button.classList.add('selected');
@@ -318,6 +402,12 @@
                 flashSaleButtons.forEach(button => {
                     button.addEventListener('click', () => {
                         switchPage(orderFormPage, homePage, button.dataset.product, button.dataset.denom, button.dataset.price);
+                        // Ensure only one denomination is selected
+                        denomButtons.forEach(btn => btn.classList.remove('selected'));
+                        const denomBtn = document.querySelector(`.denom-btn[data-denom="${button.dataset.denom}"]`);
+                        if (denomBtn) {
+                            denomBtn.classList.add('selected');
+                        }
                     });
                 });
             } catch (error) {
@@ -343,6 +433,7 @@
                 if (denom && price) {
                     denominationInput.value = denom;
                     priceInput.value = price;
+                    document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
                     document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('selected');
                     validateForm();
                 }
@@ -365,10 +456,10 @@
             document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
             userIdSpinner.style.display = 'none';
             serverIdSpinner.style.display = 'none';
+            confirmationPopup.style.display = 'none';
         });
 
         // Handle denomination selection
-        const denomButtons = document.querySelectorAll('.denom-btn');
         const denominationInput = document.getElementById('denomination');
         const priceInput = document.getElementById('price');
 
@@ -401,12 +492,10 @@
             const userId = userIdInput.value.trim();
             const serverId = serverIdInput.value.trim();
 
-            // Clear previous timeout
             if (validationTimeout) {
                 clearTimeout(validationTimeout);
             }
 
-            // Show spinners
             userIdSpinner.style.display = userId ? 'inline-block' : 'none';
             serverIdSpinner.style.display = serverId ? 'inline-block' : 'none';
             validationMessage.textContent = '';
@@ -474,7 +563,12 @@
             }
         }
 
-        // Handle form submission
+        // Handle form submission with confirmation popup
+        const confirmationPopup = document.getElementById('confirmationPopup');
+        const popupContent = document.getElementById('popupContent');
+        const confirmPopup = document.getElementById('confirmPopup');
+        const cancelPopup = document.getElementById('cancelPopup');
+
         document.getElementById('orderForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const product = productTitle.textContent;
@@ -486,9 +580,42 @@
             const region = regionInput.value;
             const paymentMethod = paymentInput.value;
 
-            const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
-            const whatsappUrl = `https://wa.me/+6287734276016?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+            // Populate popup content
+            popupContent.innerHTML = `
+                <p><strong>Product:</strong> ${product}</p>
+                <p><strong>Denomination:</strong> ${denomination}</p>
+                <p><strong>Price:</strong> Rp${price}</p>
+                <p><strong>User ID:</strong> ${userId}</p>
+                <p><strong>Server ID:</strong> ${serverId}</p>
+                <p><strong>Username:</strong> ${username}</p>
+                <p><strong>Region:</strong> ${region}</p>
+                <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+            `;
+            confirmationPopup.style.display = 'flex';
+
+            // Handle popup buttons
+            confirmPopup.onclick = () => {
+                const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
+                const whatsappUrl = `https://wa.me/+6287734276016?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                confirmationPopup.style.display = 'none';
+                switchPage(homePage, orderFormPage);
+                document.getElementById('orderForm').reset();
+                denominationInput.value = '';
+                priceInput.value = '';
+                paymentInput.value = '';
+                usernameInput.value = '';
+                regionInput.value = '';
+                validationMessage.textContent = '';
+                validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
+                submitBtn.disabled = true;
+                document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
+                document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
+            };
+
+            cancelPopup.onclick = () => {
+                confirmationPopup.style.display = 'none';
+            };
         });
 
         // Load data on page load
