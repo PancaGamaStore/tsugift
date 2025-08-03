@@ -8,7 +8,7 @@ export default function handler(req, res) {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        res.status(200).json({ valid: true, email: decoded.email });
+        res.status(200).json({ valid: true, email: decoded.email, role: decoded.role });
     } catch (error) {
         res.status(401).json({ message: 'Invalid token', valid: false });
     }
