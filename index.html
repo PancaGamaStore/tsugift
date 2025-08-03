@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLBB Gift Skin & Top Up</title>
+    <title>Tsukoyomi Store - Seller Top Up Termurah</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Smooth banner transition */
@@ -28,11 +28,11 @@
             25%, 75% { transform: translateY(-5px); opacity: 0.7; }
         }
 
-        /* Smooth hover effects for product buttons */
-        .product-btn {
+        /* Smooth hover effects for buttons */
+        .product-btn, .flash-sale-btn {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .product-btn:hover {
+        .product-btn:hover, .flash-sale-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
@@ -54,47 +54,58 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="container mx-auto p-4 max-w-2xl">
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-4">
+        <h1 class="text-3xl font-bold text-center">Tsukoyomi Store</h1>
+    </header>
+
+    <div class="container mx-auto p-4 max-w-2xl flex-grow">
         <!-- Homepage -->
         <div id="homePage" class="block">
             <!-- Banner -->
             <div class="relative w-full h-48 mb-6 overflow-hidden rounded-lg">
-                <img src="https://via.placeholder.com/800x200?text=Banner+1" class="banner-slide absolute w-full h-full object-cover" alt="Banner 1">
-                <img src="https://via.placeholder.com/800x200?text=Banner+2" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 2">
-                <img src="https://via.placeholder.com/800x200?text=Banner+3" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 3">
+                <img src="/images/banners/banner1.jpg" class="banner-slide absolute w-full h-full object-cover" alt="Banner 1">
+                <img src="/images/banners/banner2.jpg" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 2">
+                <img src="/images/banners/banner3.jpg" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 3">
             </div>
 
             <!-- Flash Sale -->
             <div class="mb-6">
                 <h2 class="text-xl font-bold text-center mb-4">Flash Sale</h2>
-                <div class="flex items-center justify-center bg-yellow-100 p-4 rounded-lg">
+                <button class="flash-sale-btn flex items-center justify-center bg-yellow-100 p-4 rounded-lg w-full" data-product="MLA" data-denom="86 Diamonds" data-price="18000">
                     <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
-                    <span class="font-semibold">Limited Offer: 86 Diamonds for Rp18,000!</span>
-                </div>
+                    <span class="font-semibold">Limited Offer: 86 Diamonds (MLA) for Rp18,000!</span>
+                </button>
             </div>
 
             <!-- Product Grid -->
-            <h1 class="text-3xl font-bold text-center mb-8">Welcome to MLBB Store</h1>
-            <div class="grid grid-cols-2 gap-4">
+            <h2 class="text-2xl font-bold text-center mb-8">Our Products</h2>
+            <div class="grid grid-cols-2 gap-4 mb-8">
                 <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLA">
-                    <img src="https://via.placeholder.com/50?text=MLA" class="w-10 h-10 mr-2" alt="MLA">
+                    <img src="/images/products/mla.png" class="w-10 h-10 mr-2" alt="MLA">
                     <span>MLA</span>
                 </button>
                 <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLB">
-                    <img src="https://via.placeholder.com/50?text=MLB" class="w-10 h-10 mr-2" alt="MLB">
+                    <img src="/images/products/mlb.png" class="w-10 h-10 mr-2" alt="MLB">
                     <span>MLB</span>
                 </button>
                 <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="WDP">
-                    <img src="https://via.placeholder.com/50?text=WDP" class="w-10 h-10 mr-2" alt="WDP">
+                    <img src="/images/products/wdp.png" class="w-10 h-10 mr-2" alt="WDP">
                     <span>WDP</span>
                 </button>
                 <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="GIFT SKIN">
-                    <img src="https://via.placeholder.com/50?text=GIFT" class="w-10 h-10 mr-2" alt="GIFT SKIN">
+                    <img src="/images/products/gift-skin.png" class="w-10 h-10 mr-2" alt="GIFT SKIN">
                     <span>GIFT SKIN</span>
                 </button>
+            </div>
+
+            <!-- Website Description -->
+            <div class="text-center mb-8">
+                <h3 class="text-lg font-semibold mb-2">About Tsukoyomi Store</h3>
+                <p class="text-gray-700">Welcome to Tsukoyomi Store, your trusted destination for Mobile Legends: Bang Bang (MLBB) gift skins and top-ups. We offer a variety of products including MLA, MLB, WDP, and exclusive gift skins at competitive prices. Enjoy fast and secure transactions with our easy-to-use platform!</p>
             </div>
         </div>
 
@@ -107,11 +118,11 @@
                     <label class="block text-gray-700 font-semibold mb-2">Select Denomination</label>
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="86 Diamonds" data-price="20000">
-                            <img src="https://via.placeholder.com/30?text=86" alt="86 Diamonds" class="w-8 h-8 mr-2">
+                            <img src="/images/denominations/86-diamonds.png" alt="86 Diamonds" class="w-8 h-8 mr-2">
                             <span>86 Diamonds</span>
                         </button>
                         <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="172 Diamonds" data-price="40000">
-                            <img src="https://via.placeholder.com/30?text=172" alt="172 Diamonds" class="w-8 h-8 mr-2">
+                            <img src="/images/denominations/172-diamonds.png" alt="172 Diamonds" class="w-8 h-8 mr-2">
                             <span>172 Diamonds</span>
                         </button>
                     </div>
@@ -145,11 +156,11 @@
                     <label class="block text-gray-700 font-semibold mb-2">Select Payment Method</label>
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="QRIS">
-                            <img src="https://via.placeholder.com/30?text=QRIS" alt="QRIS" class="w-8 h-8 mr-2">
+                            <img src="/images/payments/qris.png" alt="QRIS" class="w-8 h-8 mr-2">
                             <span>QRIS</span>
                         </button>
                         <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="Bank Transfer">
-                            <img src="https://via.placeholder.com/30?text=Bank" alt="Bank Transfer" class="w-8 h-8 mr-2">
+                            <img src="/images/payments/bank-transfer.png" alt="Bank Transfer" class="w-8 h-8 mr-2">
                             <span>Bank Transfer</span>
                         </button>
                     </div>
@@ -165,15 +176,24 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-blue-600 text-white py-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 Tsukoyomi Store. All rights reserved.</p>
+            <p>Contact us: <a href="https://wa.me/+6281234567890" class="underline">WhatsApp</a> | Email: support@tsukoyomistore.com</p>
+        </div>
+    </footer>
+
     <script>
         // Page navigation with fade animation
         const homePage = document.getElementById('homePage');
         const orderFormPage = document.getElementById('orderFormPage');
         const productTitle = document.getElementById('productTitle');
         const productButtons = document.querySelectorAll('.product-btn');
+        const flashSaleButton = document.querySelector('.flash-sale-btn');
         const backBtn = document.getElementById('backBtn');
 
-        function switchPage(show, hide) {
+        function switchPage(show, hide, product, denom = '', price = '') {
             hide.classList.add('fade-exit');
             setTimeout(() => {
                 hide.classList.add('hidden');
@@ -181,14 +201,24 @@
                 show.classList.remove('hidden');
                 show.classList.add('fade-enter');
                 setTimeout(() => show.classList.remove('fade-enter'), 500);
+                productTitle.textContent = product;
+                if (denom && price) {
+                    denominationInput.value = denom;
+                    priceInput.value = price;
+                    document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('bg-blue-200');
+                    validateForm();
+                }
             }, 500);
         }
 
         productButtons.forEach(button => {
             button.addEventListener('click', () => {
-                switchPage(orderFormPage, homePage);
-                productTitle.textContent = button.dataset.product;
+                switchPage(orderFormPage, homePage, button.dataset.product);
             });
+        });
+
+        flashSaleButton.addEventListener('click', () => {
+            switchPage(orderFormPage, homePage, flashSaleButton.dataset.product, flashSaleButton.dataset.denom, flashSaleButton.dataset.price);
         });
 
         backBtn.addEventListener('click', () => {
@@ -288,7 +318,7 @@
 
         // Validate form to enable/disable submit button
         function validateForm() {
-            if (denominationInput.value && paymentInput.value && usernameInput.value && regionInput.value) {
+            if (denominationInput.value && paymentInput.value && usernameivetInput.value && regionInput.value) {
                 submitBtn.disabled = false;
             } else {
                 submitBtn.disabled = true;
