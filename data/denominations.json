@@ -1,0 +1,12 @@
+[
+    {
+        "name": "86 Diamonds",
+        "price": 20000,
+        "image": "/images/denominations/86-diamonds.png"
+    },
+    {
+        "name": "172 Diamonds",
+        "price": 40000,
+        "image": "/images/denominations/172-diamonds.png"
+    }
+]
