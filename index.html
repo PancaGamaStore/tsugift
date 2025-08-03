@@ -419,6 +419,7 @@
                         if (denomBtn) {
                             denomBtn.classList.add('selected');
                         }
+                        validateForm();
                     });
                 });
             } catch (error) {
@@ -448,6 +449,8 @@
                     document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('selected');
                     validateForm();
                 }
+                // Ensure confirmation popup is hidden on page switch
+                confirmationPopup.classList.add('hidden');
             }, 500);
         }
 
@@ -466,7 +469,7 @@
             document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
             userIdSpinner.style.display = 'none';
             serverIdSpinner.style.display = 'none';
-            confirmationPopup.classList.add('hidden'); // Ensure popup is hidden on back
+            confirmationPopup.classList.add('hidden');
         });
 
         // Handle denomination selection
@@ -567,11 +570,15 @@
 
         // Validate form to enable/disable submit button
         function validateForm() {
-            if (denominationInput.value && paymentInput.value && usernameInput.value && regionInput.value) {
-                submitBtn.disabled = false;
-            } else {
-                submitBtn.disabled = true;
-            }
+            const isValid = denominationInput.value && paymentInput.value && usernameInput.value && regionInput.value;
+            submitBtn.disabled = !isValid;
+            console.log('Form validation:', {
+                denomination: denominationInput.value,
+                paymentMethod: paymentInput.value,
+                username: usernameInput.value,
+                region: regionInput.value,
+                submitBtnDisabled: submitBtn.disabled
+            });
         }
 
         // Handle form submission with confirmation popup
@@ -581,6 +588,7 @@
 
         document.getElementById('orderForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            console.log('Form submitted');
             const product = productTitle.textContent;
             const denomination = denominationInput.value;
             const price = priceInput.value;
@@ -601,12 +609,15 @@
                 <p><strong>Payment Method:</strong> ${paymentMethod}</p>
             `;
             confirmationPopup.classList.remove('hidden');
+            confirmationPopup.style.display = 'flex';
 
             confirmPopup.onclick = () => {
+                console.log('Confirm clicked');
                 const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
                 const whatsappUrl = `https://wa.me/+6281234567890?text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank');
                 confirmationPopup.classList.add('hidden');
+                confirmationPopup.style.display = 'none';
                 switchPage(homePage, orderFormPage);
                 document.getElementById('orderForm').reset();
                 denominationInput.value = '';
@@ -622,7 +633,9 @@
             };
 
             cancelPopup.onclick = () => {
+                console.log('Cancel clicked');
                 confirmationPopup.classList.add('hidden');
+                confirmationPopup.style.display = 'none';
             };
         });
 
