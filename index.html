@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tsukoyomi Store - Seller Top Up Termurah</title>
+    <title>Tsukoyomi Store - MLBB Gift Skin & Top Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Smooth banner transition */
@@ -282,9 +282,9 @@
                     const response = await fetch(url);
                     const data = await response.json();
 
-                    if (data.status && data.data && data.data.username && data.data.region) {
-                        usernameInput.value = data.data.username;
-                        regionInput.value = data.data.region;
+                    if (data.status && data.data && data.data.nickname && data.data.country) {
+                        usernameInput.value = data.data.nickname;
+                        regionInput.value = data.data.country;
                         validationMessage.textContent = 'Username and region validated successfully!';
                         validationMessage.classList.remove('text-red-500');
                         validationMessage.classList.add('text-green-500');
@@ -318,7 +318,7 @@
 
         // Validate form to enable/disable submit button
         function validateForm() {
-            if (denominationInput.value && paymentInput.value && usernameivetInput.value && regionInput.value) {
+            if (denominationInput.value && paymentInput.value && usernameInput.value && regionInput.value) {
                 submitBtn.disabled = false;
             } else {
                 submitBtn.disabled = true;
