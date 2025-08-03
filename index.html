@@ -19,20 +19,7 @@
         .banner-slide:nth-child(2) { animation-delay: 4s; }
         .banner-slide:nth-child(3) { animation-delay: 8s; }
 
-        /* Flash sale product display */
-        .flash-sale-slide {
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            opacity: 0;
-            transform: translateY(20px);
-            position: absolute;
-            width: 100%;
-        }
-        .flash-sale-slide.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Lightning bolt animation */
+        /* Lightning bolt animation for flash sale */
         .lightning {
             animation: flash 1s infinite;
         }
@@ -41,50 +28,13 @@
             25%, 75% { transform: translateY(-5px); opacity: 0.7; }
         }
 
-        /* Loading spinner for validation */
-        .spinner {
-            display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin-left: 8px;
+        /* Smooth hover effects for buttons */
+        .product-btn, .flash-sale-btn {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Order count animation */
-        .order-count {
-            transition: transform 0.3s ease;
-            display: inline-block;
-        }
-        .order-count.update {
-            animation: pulse 0.5s ease;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        /* Smooth hover and selected effects */
-        .product-btn, .flash-sale-btn, .denom-btn, .payment-btn {
-            transition: all 0.3s ease;
-        }
-        .product-btn:hover, .flash-sale-btn:hover, .denom-btn:hover, .payment-btn:hover {
+        .product-btn:hover, .flash-sale-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .product-btn {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .selected {
-            background-color: rgba(59, 130, 246, 0.2);
-            border-color: #3b82f6;
         }
 
         /* Fade transition for page switching */
@@ -95,64 +45,18 @@
             animation: fadeOut 0.5s ease-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-10px); }
-        }
-
-        /* Validation message animation */
-        .validation-message {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            opacity: 0;
-            transform: translateY(5px);
-        }
-        .validation-message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Navigation buttons for flash sale */
-        .nav-btn {
-            transition: background-color 0.3s ease;
-        }
-        .nav-btn:hover {
-            background-color: #2563eb;
-        }
-
-        /* Popup styles */
-        .popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .popup-content {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            animation: popupIn 0.3s ease;
-        }
-        @keyframes popupIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 1; }
+            to { opacity: 0; }
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="bg-gray-100 min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-blue-600 text-white py-4 shadow-md">
+    <header class="bg-blue-600 text-white py-4">
         <h1 class="text-3xl font-bold text-center">Tsukoyomi Store</h1>
     </header>
 
@@ -160,7 +64,7 @@
         <!-- Homepage -->
         <div id="homePage" class="block">
             <!-- Banner -->
-            <div class="relative w-full h-48 mb-6 overflow-hidden rounded-xl shadow-lg">
+            <div class="relative w-full h-48 mb-6 overflow-hidden rounded-lg">
                 <img src="/images/banners/banner1.jpg" class="banner-slide absolute w-full h-full object-cover" alt="Banner 1">
                 <img src="/images/banners/banner2.jpg" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 2">
                 <img src="/images/banners/banner3.jpg" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 3">
@@ -168,43 +72,60 @@
 
             <!-- Flash Sale -->
             <div class="mb-6">
-                <h2 class="text-xl font-bold text-center mb-4 text-gray-800">Flash Sale</h2>
-                <div class="relative w-full h-20 overflow-hidden">
-                    <div id="flashSaleContainer"></div>
-                </div>
-                <div class="flex justify-between mt-2">
-                    <button id="prevFlashSale" class="nav-btn bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                    </button>
-                    <button id="nextFlashSale" class="nav-btn bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </button>
-                </div>
+                <h2 class="text-xl font-bold text-center mb-4">Flash Sale</h2>
+                <button class="flash-sale-btn flex items-center justify-center bg-yellow-100 p-4 rounded-lg w-full" data-product="MLA" data-denom="86 Diamonds" data-price="18000">
+                    <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="font-semibold">Limited Offer: 86 Diamonds (MLA) for Rp18,000!</span>
+                </button>
             </div>
 
             <!-- Product Grid -->
-            <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Our Products</h2>
-            <div id="productGrid" class="grid grid-cols-2 gap-4 mb-8"></div>
+            <h2 class="text-2xl font-bold text-center mb-8">Our Products</h2>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLA">
+                    <img src="/images/products/mla.png" class="w-10 h-10 mr-2" alt="MLA">
+                    <span>MLA</span>
+                </button>
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLB">
+                    <img src="/images/products/mlb.png" class="w-10 h-10 mr-2" alt="MLB">
+                    <span>MLB</span>
+                </button>
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="WDP">
+                    <img src="/images/products/wdp.png" class="w-10 h-10 mr-2" alt="WDP">
+                    <span>WDP</span>
+                </button>
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="GIFT SKIN">
+                    <img src="/images/products/gift-skin.png" class="w-10 h-10 mr-2" alt="GIFT SKIN">
+                    <span>GIFT SKIN</span>
+                </button>
+            </div>
 
             <!-- Website Description -->
             <div class="text-center mb-8">
-                <h3 class="text-lg font-semibold mb-2 text-gray-800">About Tsukoyomi Store</h3>
-                <p class="text-gray-600">Welcome to Tsukoyomi Store, your trusted destination for Mobile Legends: Bang Bang (MLBB) gift skins and top-ups. We offer a variety of products including MLA, MLB, WDP, and exclusive gift skins at competitive prices. Enjoy fast and secure transactions with our easy-to-use platform!</p>
+                <h3 class="text-lg font-semibold mb-2">About Tsukoyomi Store</h3>
+                <p class="text-gray-700">Welcome to Tsukoyomi Store, your trusted destination for Mobile Legends: Bang Bang (MLBB) gift skins and top-ups. We offer a variety of products including MLA, MLB, WDP, and exclusive gift skins at competitive prices. Enjoy fast and secure transactions with our easy-to-use platform!</p>
             </div>
         </div>
 
         <!-- Order Form -->
         <div id="orderFormPage" class="hidden">
-            <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Order <span id="productTitle"></span></h1>
-            <form id="orderForm" class="bg-white p-6 rounded-xl shadow-lg">
+            <h1 class="text-2xl font-bold text-center mb-6">Order <span id="productTitle"></span></h1>
+            <form id="orderForm" class="bg-white p-6 rounded-lg shadow-md">
                 <!-- Denomination Selection -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-2">Select Denomination</label>
-                    <div id="denomGrid" class="grid grid-cols-2 gap-2"></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="86 Diamonds" data-price="20000">
+                            <img src="/images/denominations/86-diamonds.png" alt="86 Diamonds" class="w-8 h-8 mr-2">
+                            <span>86 Diamonds</span>
+                        </button>
+                        <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="172 Diamonds" data-price="40000">
+                            <img src="/images/denominations/172-diamonds.png" alt="172 Diamonds" class="w-8 h-8 mr-2">
+                            <span>172 Diamonds</span>
+                        </button>
+                    </div>
                     <input type="hidden" id="denomination" name="denomination" required>
                     <input type="hidden" id="price" name="price" required>
                 </div>
@@ -212,17 +133,11 @@
                 <!-- User ID and Server -->
                 <div class="mb-4">
                     <label for="userId" class="block text-gray-700 font-semibold mb-2">User ID</label>
-                    <div class="flex items-center">
-                        <input type="text" id="userId" name="userId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter User ID" required>
-                        <div id="userIdSpinner" class="spinner"></div>
-                    </div>
+                    <input type="text" id="userId" name="userId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Enter User ID" required>
                 </div>
                 <div class="mb-4">
                     <label for="serverId" class="block text-gray-700 font-semibold mb-2">Server ID</label>
-                    <div class="flex items-center">
-                        <input type="text" id="serverId" name="serverId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Server ID" required>
-                        <div id="serverIdSpinner" class="spinner"></div>
-                    </div>
+                    <input type="text" id="serverId" name="serverId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Enter Server ID" required>
                 </div>
                 <div class="mb-4">
                     <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
@@ -233,18 +148,18 @@
                     <input type="text" id="region" name="region" class="w-full p-2 border rounded bg-gray-100" readonly>
                 </div>
                 <div class="mb-4">
-                    <p id="validationMessage" class="text-sm mt-1 validation-message"></p>
+                    <p id="validationMessage" class="text-sm mt-1"></p>
                 </div>
 
                 <!-- Payment Method Selection -->
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-2">Select Payment Method</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button type="button" class="payment-btn flex items-center p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-payment="QRIS">
+                        <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="QRIS">
                             <img src="/images/payments/qris.png" alt="QRIS" class="w-8 h-8 mr-2">
                             <span>QRIS</span>
                         </button>
-                        <button type="button" class="payment-btn flex items-center p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-payment="Bank Transfer">
+                        <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="Bank Transfer">
                             <img src="/images/payments/bank-transfer.png" alt="Bank Transfer" class="w-8 h-8 mr-2">
                             <span>Bank Transfer</span>
                         </button>
@@ -254,22 +169,10 @@
 
                 <!-- Submit and Back Buttons -->
                 <div class="flex gap-2">
-                    <button type="button" id="backBtn" class="w-1/2 bg-gray-500 text-white p-2 rounded-xl hover:bg-gray-600 transition-colors">Back</button>
-                    <button type="submit" id="submitBtn" class="w-1/2 bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition-colors" disabled>Proceed to WhatsApp</button>
+                    <button type="button" id="backBtn" class="w-1/2 bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition-colors">Back</button>
+                    <button type="submit" id="submitBtn" class="w-1/2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors" disabled>Proceed to WhatsApp</button>
                 </div>
             </form>
-        </div>
-
-        <!-- Confirmation Popup -->
-        <div id="confirmationPopup" class="popup">
-            <div class="popup-content">
-                <h2 class="text-xl font-bold mb-4 text-gray-800">Confirm Your Order</h2>
-                <div id="popupContent" class="text-gray-700 mb-6"></div>
-                <div class="flex gap-2">
-                    <button id="cancelPopup" class="w-1/2 bg-gray-500 text-white p-2 rounded-xl hover:bg-gray-600 transition-colors">Cancel</button>
-                    <button id="confirmPopup" class="w-1/2 bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition-colors">Confirm</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -282,143 +185,12 @@
     </footer>
 
     <script>
-        // Mock API for order counts (replace with actual endpoint if available)
-        async function fetchOrderCounts() {
-            // Simulate API response
-            return {
-                "86 Diamonds": 1504,
-                "172 Diamonds": 800
-            };
-        }
-
-        // Load data from JSON files and order counts
-        async function loadData() {
-            try {
-                const [productsRes, denominationsRes, flashSalesRes, orderCounts] = await Promise.all([
-                    fetch('/data/products.json'),
-                    fetch('/data/denominations.json'),
-                    fetch('/data/flashsales.json'),
-                    fetchOrderCounts()
-                ]);
-                const products = await productsRes.json();
-                const denominations = await denominationsRes.json();
-                const flashSales = await flashSalesRes.json();
-
-                // Populate product grid
-                const productGrid = document.getElementById('productGrid');
-                productGrid.innerHTML = products.map(product => `
-                    <button class="product-btn bg-blue-500 text-white p-4 rounded-xl flex items-center justify-center" data-product="${product.name}">
-                        <img src="${product.image}" class="w-10 h-10 mr-2" alt="${product.name}">
-                        <span>${product.name}</span>
-                    </button>
-                `).join('');
-
-                // Populate denomination grid with order counts
-                const denomGrid = document.getElementById('denomGrid');
-                denomGrid.innerHTML = denominations.map(denom => `
-                    <button type="button" class="denom-btn flex items-center justify-between p-2 border rounded-xl hover:bg-gray-100 transition-colors" data-denom="${denom.name}" data-price="${denom.price}">
-                        <div class="flex items-center">
-                            <img src="${denom.image}" alt="${denom.name}" class="w-8 h-8 mr-2">
-                            <span>${denom.name}</span>
-                        </div>
-                        <span class="order-count text-sm text-gray-500" data-denom="${denom.name}">
-                            ${orderCounts[denom.name] || 0} orders
-                        </span>
-                    </button>
-                `).join('');
-
-                // Simulate order count updates
-                setInterval(async () => {
-                    const newOrderCounts = await fetchOrderCounts();
-                    document.querySelectorAll('.order-count').forEach(countEl => {
-                        const denom = countEl.dataset.denom;
-                        const currentCount = parseInt(countEl.textContent) || 0;
-                        const newCount = newOrderCounts[denom] || currentCount;
-                        if (newCount !== currentCount) {
-                            countEl.textContent = `${newCount} orders`;
-                            countEl.classList.add('update');
-                            setTimeout(() => countEl.classList.remove('update'), 500);
-                        }
-                    });
-                }, 10000); // Update every 10 seconds
-
-                // Populate flash sale
-                const flashSaleContainer = document.getElementById('flashSaleContainer');
-                flashSaleContainer.innerHTML = flashSales.map((sale, index) => `
-                    <button class="flash-sale-btn flash-sale-slide ${index === 0 ? 'active' : ''} flex items-center justify-center bg-yellow-100 p-4 rounded-xl" data-product="${sale.product}" data-denom="${sale.denom}" data-price="${sale.price}">
-                        <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span class="font-semibold text-gray-800">${sale.text}</span>
-                    </button>
-                `).join('');
-
-                // Flash sale navigation
-                let currentFlashSaleIndex = 0;
-                const flashSaleButtons = document.querySelectorAll('.flash-sale-btn');
-                const prevFlashSale = document.getElementById('prevFlashSale');
-                const nextFlashSale = document.getElementById('nextFlashSale');
-
-                function updateFlashSale() {
-                    flashSaleButtons.forEach((btn, index) => {
-                        btn.classList.toggle('active', index === currentFlashSaleIndex);
-                    });
-                }
-
-                prevFlashSale.addEventListener('click', () => {
-                    currentFlashSaleIndex = (currentFlashSaleIndex - 1 + flashSales.length) % flashSales.length;
-                    updateFlashSale();
-                });
-
-                nextFlashSale.addEventListener('click', () => {
-                    currentFlashSaleIndex = (currentFlashSaleIndex + 1) % flashSales.length;
-                    updateFlashSale();
-                });
-
-                // Auto-cycle flash sale
-                setInterval(() => {
-                    currentFlashSaleIndex = (currentFlashSaleIndex + 1) % flashSales.length;
-                    updateFlashSale();
-                }, 5000);
-
-                // Re-attach event listeners
-                document.querySelectorAll('.product-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        switchPage(orderFormPage, homePage, button.dataset.product);
-                    });
-                });
-
-                const denomButtons = document.querySelectorAll('.denom-btn');
-                denomButtons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        denomButtons.forEach(btn => btn.classList.remove('selected'));
-                        button.classList.add('selected');
-                        denominationInput.value = button.dataset.denom;
-                        priceInput.value = button.dataset.price;
-                        validateForm();
-                    });
-                });
-
-                flashSaleButtons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        switchPage(orderFormPage, homePage, button.dataset.product, button.dataset.denom, button.dataset.price);
-                        // Ensure only one denomination is selected
-                        denomButtons.forEach(btn => btn.classList.remove('selected'));
-                        const denomBtn = document.querySelector(`.denom-btn[data-denom="${button.dataset.denom}"]`);
-                        if (denomBtn) {
-                            denomBtn.classList.add('selected');
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error('Error loading data:', error);
-            }
-        }
-
         // Page navigation with fade animation
         const homePage = document.getElementById('homePage');
         const orderFormPage = document.getElementById('orderFormPage');
         const productTitle = document.getElementById('productTitle');
+        const productButtons = document.querySelectorAll('.product-btn');
+        const flashSaleButton = document.querySelector('.flash-sale-btn');
         const backBtn = document.getElementById('backBtn');
 
         function switchPage(show, hide, product, denom = '', price = '') {
@@ -433,12 +205,21 @@
                 if (denom && price) {
                     denominationInput.value = denom;
                     priceInput.value = price;
-                    document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
-                    document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('selected');
+                    document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('bg-blue-200');
                     validateForm();
                 }
             }, 500);
         }
+
+        productButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                switchPage(orderFormPage, homePage, button.dataset.product);
+            });
+        });
+
+        flashSaleButton.addEventListener('click', () => {
+            switchPage(orderFormPage, homePage, flashSaleButton.dataset.product, flashSaleButton.dataset.denom, flashSaleButton.dataset.price);
+        });
 
         backBtn.addEventListener('click', () => {
             switchPage(homePage, orderFormPage);
@@ -450,18 +231,25 @@
             usernameInput.value = '';
             regionInput.value = '';
             validationMessage.textContent = '';
-            validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
             submitBtn.disabled = true;
-            document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
-            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
-            userIdSpinner.style.display = 'none';
-            serverIdSpinner.style.display = 'none';
-            confirmationPopup.style.display = 'none';
+            document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('bg-blue-200'));
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('bg-blue-200'));
         });
 
         // Handle denomination selection
+        const denomButtons = document.querySelectorAll('.denom-btn');
         const denominationInput = document.getElementById('denomination');
         const priceInput = document.getElementById('price');
+
+        denomButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                denomButtons.forEach(btn => btn.classList.remove('bg-blue-200'));
+                button.classList.add('bg-blue-200');
+                denominationInput.value = button.dataset.denom;
+                priceInput.value = button.dataset.price;
+                validateForm();
+            });
+        });
 
         // Handle payment method selection
         const paymentButtons = document.querySelectorAll('.payment-btn');
@@ -469,8 +257,8 @@
 
         paymentButtons.forEach(button => {
             button.addEventListener('click', () => {
-                paymentButtons.forEach(btn => btn.classList.remove('selected'));
-                button.classList.add('selected');
+                paymentButtons.forEach(btn => btn.classList.remove('bg-blue-200'));
+                button.classList.add('bg-blue-200');
                 paymentInput.value = button.dataset.payment;
                 validateForm();
             });
@@ -483,70 +271,44 @@
         const regionInput = document.getElementById('region');
         const validationMessage = document.getElementById('validationMessage');
         const submitBtn = document.getElementById('submitBtn');
-        const userIdSpinner = document.getElementById('userIdSpinner');
-        const serverIdSpinner = document.getElementById('serverIdSpinner');
-
-        let validationTimeout = null;
 
         async function validateUser() {
             const userId = userIdInput.value.trim();
             const serverId = serverIdInput.value.trim();
 
-            if (validationTimeout) {
-                clearTimeout(validationTimeout);
-            }
-
-            userIdSpinner.style.display = userId ? 'inline-block' : 'none';
-            serverIdSpinner.style.display = serverId ? 'inline-block' : 'none';
-            validationMessage.textContent = '';
-            validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
-            usernameInput.value = '';
-            regionInput.value = '';
-            submitBtn.disabled = true;
-
             if (userId && serverId) {
-                validationTimeout = setTimeout(async () => {
-                    try {
-                        const url = `https://dev.luckycat.my.id/api/stalker/mobile-legend?users=${encodeURIComponent(userId)}&servers=${encodeURIComponent(serverId)}`;
-                        const response = await fetch(url);
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        const data = await response.json();
+                try {
+                    const url = `https://dev.luckycat.my.id/api/stalker/mobile-legend?users=${userId}&servers=${serverId}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
 
-                        if (data.status === true && data.data && typeof data.data.nickname === 'string' && typeof data.data.country === 'string') {
-                            usernameInput.value = data.data.nickname;
-                            regionInput.value = data.data.country;
-                            validationMessage.textContent = 'Username and region validated successfully!';
-                            validationMessage.classList.remove('text-red-500');
-                            validationMessage.classList.add('text-green-500', 'show');
-                            validateForm();
-                        } else {
-                            usernameInput.value = '';
-                            regionInput.value = '';
-                            validationMessage.textContent = 'Invalid User ID or Server ID';
-                            validationMessage.classList.remove('text-green-500');
-                            validationMessage.classList.add('text-red-500', 'show');
-                            submitBtn.disabled = true;
-                        }
-                    } catch (error) {
+                    if (data.status && data.data && data.data.nickname && data.data.country) {
+                        usernameInput.value = data.data.nickname;
+                        regionInput.value = data.data.country;
+                        validationMessage.textContent = 'Username and region validated successfully!';
+                        validationMessage.classList.remove('text-red-500');
+                        validationMessage.classList.add('text-green-500');
+                        validateForm();
+                    } else {
                         usernameInput.value = '';
                         regionInput.value = '';
-                        validationMessage.textContent = 'Error validating username and region. Please try again.';
+                        validationMessage.textContent = 'Invalid User ID or Server ID';
                         validationMessage.classList.remove('text-green-500');
-                        validationMessage.classList.add('text-red-500', 'show');
+                        validationMessage.classList.add('text-red-500');
                         submitBtn.disabled = true;
-                        console.error('Validation error:', error);
-                    } finally {
-                        userIdSpinner.style.display = 'none';
-                        serverIdSpinner.style.display = 'none';
                     }
-                }, 500);
+                } catch (error) {
+                    usernameInput.value = '';
+                    regionInput.value = '';
+                    validationMessage.textContent = 'Error validating username and region. Please try again.';
+                    validationMessage.classList.remove('text-green-500');
+                    validationMessage.classList.add('text-red-500');
+                    submitBtn.disabled = true;
+                }
             } else {
-                userIdSpinner.style.display = 'none';
-                serverIdSpinner.style.display = 'none';
+                usernameInput.value = '';
+                regionInput.value = '';
                 validationMessage.textContent = '';
-                validationMessage.classList.remove('show');
                 submitBtn.disabled = true;
             }
         }
@@ -563,12 +325,7 @@
             }
         }
 
-        // Handle form submission with confirmation popup
-        const confirmationPopup = document.getElementById('confirmationPopup');
-        const popupContent = document.getElementById('popupContent');
-        const confirmPopup = document.getElementById('confirmPopup');
-        const cancelPopup = document.getElementById('cancelPopup');
-
+        // Handle form submission
         document.getElementById('orderForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const product = productTitle.textContent;
@@ -580,46 +337,10 @@
             const region = regionInput.value;
             const paymentMethod = paymentInput.value;
 
-            // Populate popup content
-            popupContent.innerHTML = `
-                <p><strong>Product:</strong> ${product}</p>
-                <p><strong>Denomination:</strong> ${denomination}</p>
-                <p><strong>Price:</strong> Rp${price}</p>
-                <p><strong>User ID:</strong> ${userId}</p>
-                <p><strong>Server ID:</strong> ${serverId}</p>
-                <p><strong>Username:</strong> ${username}</p>
-                <p><strong>Region:</strong> ${region}</p>
-                <p><strong>Payment Method:</strong> ${paymentMethod}</p>
-            `;
-            confirmationPopup.style.display = 'flex';
-
-            // Handle popup buttons
-            confirmPopup.onclick = () => {
-                const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
-                const whatsappUrl = `https://wa.me/+6287734276016?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-                confirmationPopup.style.display = 'none';
-                switchPage(homePage, orderFormPage);
-                document.getElementById('orderForm').reset();
-                denominationInput.value = '';
-                priceInput.value = '';
-                paymentInput.value = '';
-                usernameInput.value = '';
-                regionInput.value = '';
-                validationMessage.textContent = '';
-                validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
-                submitBtn.disabled = true;
-                document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
-                document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
-            };
-
-            cancelPopup.onclick = () => {
-                confirmationPopup.style.display = 'none';
-            };
+            const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
+            const whatsappUrl = `https://wa.me/+6281234567890?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
         });
-
-        // Load data on page load
-        loadData();
     </script>
 </body>
 </html>
