@@ -1,0 +1,20 @@
+[
+    {
+        "product": "MLA",
+        "denom": "86 Diamonds",
+        "price": 18000,
+        "text": "Limited Offer: 86 Diamonds (MLA) for Rp18,000!"
+    },
+    {
+        "product": "MLB",
+        "denom": "172 Diamonds",
+        "price": 36000,
+        "text": "Limited Offer: 172 Diamonds (MLB) for Rp36,000!"
+    },
+    {
+        "product": "WDP",
+        "denom": "50 Diamonds",
+        "price": 12000,
+        "text": "Limited Offer: 50 Diamonds (WDP) for Rp12,000!"
+    }
+]
