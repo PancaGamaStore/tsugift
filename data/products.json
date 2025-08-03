@@ -1,0 +1,18 @@
+[
+    {
+        "name": "MLA",
+        "image": "/images/products/mla.png"
+    },
+    {
+        "name": "MLB",
+        "image": "/images/products/mlb.png"
+    },
+    {
+        "name": "WDP",
+        "image": "/images/products/wdp.png"
+    },
+    {
+        "name": "GIFT SKIN",
+        "image": "/images/products/gift-skin.png"
+    }
+]
