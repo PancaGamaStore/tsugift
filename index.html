@@ -163,8 +163,61 @@
     </header>
 
     <div class="container mx-auto p-4 max-w-2xl flex-grow">
+        <!-- Login Page -->
+        <div id="loginPage" class="block">
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Login</h2>
+            <form id="loginForm" class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="mb-4">
+                    <label for="loginEmail" class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" id="loginEmail" name="email" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Email" required>
+                </div>
+                <div class="mb-4">
+                    <label for="loginPassword" class="block text-gray-700 font-semibold mb-2">Password</label>
+                    <input type="password" id="loginPassword" name="password" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Password" required>
+                </div>
+                <div class="mb-4">
+                    <p id="loginMessage" class="text-sm mt-1 validation-message"></p>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition-colors">Login</button>
+                <p class="text-center mt-4 text-gray-600">Don't have an account? <a href="#" id="showRegister" class="text-blue-500 underline">Register</a></p>
+            </form>
+        </div>
+
+        <!-- Register Page -->
+        <div id="registerPage" class="hidden">
+            <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Register</h2>
+            <form id="registerForm" class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="mb-4">
+                    <label for="registerEmail" class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" id="registerEmail" name="email" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Email" required>
+                </div>
+                <div class="mb-4">
+                    <label for="registerPassword" class="block text-gray-700 font-semibold mb-2">Password</label>
+                    <input type="password" id="registerPassword" name="password" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter Password" required>
+                </div>
+                <div class="mb-4">
+                    <p id="registerMessage" class="text-sm mt-1 validation-message"></p>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-xl hover:bg-blue-600 transition-colors">Register</button>
+                <p class="text-center mt-4 text-gray-600">Already have an account? <a href="#" id="showLogin" class="text-blue-500 underline">Login</a></p>
+            </form>
+        </div>
+
         <!-- Homepage -->
-        <div id="homePage" class="block">
+        <div id="homePage" class="hidden">
+            <!-- Profile Section -->
+            <div class="mb-6 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Profile</h2>
+                <p id="profileEmail" class="text-gray-700"></p>
+                <button id="logoutBtn" class="mt-4 bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 transition-colors">Logout</button>
+            </div>
+
+            <!-- Order History -->
+            <div class="mb-6 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Order History</h2>
+                <div id="orderHistory" class="text-gray-700"></div>
+            </div>
+
             <!-- Banner -->
             <div class="relative w-full h-48 mb-6 overflow-hidden rounded-xl shadow-lg">
                 <img src="/images/banners/banner1.jpg" class="banner-slide absolute w-full h-full object-cover" alt="Banner 1">
@@ -293,19 +346,70 @@
     </footer>
 
     <script>
-        // Load data from JSON files
-        async function loadData() {
+        // Utility to get cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Utility to set cookie
+        function setCookie(name, value, minutes) {
+            const date = new Date();
+            date.setTime(date.getTime() + (minutes * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;Secure;SameSite=Strict`;
+        }
+
+        // Utility to delete cookie
+        function deleteCookie(name) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;Secure;SameSite=Strict`;
+        }
+
+        // Check authentication on page load
+        async function checkAuth() {
+            const token = getCookie('token');
+            if (!token) {
+                switchPage(loginPage, homePage);
+                return null;
+            }
             try {
-                const [productsRes, denominationsRes, flashSalesRes, purchasesRes] = await Promise.all([
+                const response = await fetch('/api/validate', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok && data.valid) {
+                    return data.email;
+                } else {
+                    deleteCookie('token');
+                    switchPage(loginPage, homePage);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                deleteCookie('token');
+                switchPage(loginPage, homePage);
+                return null;
+            }
+        }
+
+        // Load data from JSON files
+        async function loadData(email) {
+            try {
+                const [productsRes, denominationsRes, flashSalesRes, purchasesRes, ordersRes] = await Promise.all([
                     fetch('/data/products.json'),
                     fetch('/data/denominations.json'),
                     fetch('/data/flashsales.json'),
-                    fetch('/data/purchases.json')
+                    fetch('/data/purchases.json'),
+                    email ? fetch('/api/orders', {
+                        headers: { 'Authorization': `Bearer ${getCookie('token')}` }
+                    }) : Promise.resolve({ json: () => [] })
                 ]);
                 const products = await productsRes.json();
                 const denominations = await denominationsRes.json();
                 const flashSales = await flashSalesRes.json();
                 const purchases = await purchasesRes.json();
+                const orders = email ? await ordersRes.json() : [];
 
                 // Populate product grid
                 const productGrid = document.getElementById('productGrid');
@@ -364,6 +468,27 @@
                 if (purchases.length > 0) {
                     updatePurchasePopup();
                     setInterval(updatePurchasePopup, 3000);
+                }
+
+                // Populate order history
+                const orderHistory = document.getElementById('orderHistory');
+                orderHistory.innerHTML = orders.length > 0 ? orders.map(order => `
+                    <div class="border-b py-2">
+                        <p><strong>Product:</strong> ${order.product}</p>
+                        <p><strong>Denomination:</strong> ${order.denomination}</p>
+                        <p><strong>Price:</strong> Rp${order.price}</p>
+                        <p><strong>User ID:</strong> ${order.userId}</p>
+                        <p><strong>Server ID:</strong> ${order.serverId}</p>
+                        <p><strong>Username:</strong> ${order.username}</p>
+                        <p><strong>Region:</strong> ${order.region}</p>
+                        <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+                        <p><strong>Date:</strong> ${new Date(order.timestamp).toLocaleString()}</p>
+                    </div>
+                `).join('') : '<p>No orders yet.</p>';
+
+                // Populate profile
+                if (email) {
+                    document.getElementById('profileEmail').textContent = `Email: ${email}`;
                 }
 
                 // Flash sale navigation
@@ -428,12 +553,14 @@
         }
 
         // Page navigation with fade animation
+        const loginPage = document.getElementById('loginPage');
+        const registerPage = document.getElementById('registerPage');
         const homePage = document.getElementById('homePage');
         const orderFormPage = document.getElementById('orderFormPage');
         const productTitle = document.getElementById('productTitle');
         const backBtn = document.getElementById('backBtn');
 
-        function switchPage(show, hide, product, denom = '', price = '') {
+        function switchPage(show, hide, product = '', denom = '', price = '') {
             hide.classList.add('fade-exit');
             setTimeout(() => {
                 hide.classList.add('hidden');
@@ -441,35 +568,117 @@
                 show.classList.remove('hidden');
                 show.classList.add('fade-enter');
                 setTimeout(() => show.classList.remove('fade-enter'), 500);
-                productTitle.textContent = product;
-                if (denom && price) {
-                    denominationInput.value = denom;
-                    priceInput.value = price;
-                    document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
-                    document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('selected');
-                    validateForm();
+                if (product) {
+                    productTitle.textContent = product;
+                    if (denom && price) {
+                        denominationInput.value = denom;
+                        priceInput.value = price;
+                        document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
+                        document.querySelector(`.denom-btn[data-denom="${denom}"]`)?.classList.add('selected');
+                        validateForm();
+                    }
                 }
-                // Ensure confirmation popup is hidden on page switch
                 confirmationPopup.classList.add('hidden');
+                confirmationPopup.style.display = 'none';
             }, 500);
         }
 
-        backBtn.addEventListener('click', () => {
-            switchPage(homePage, orderFormPage);
-            document.getElementById('orderForm').reset();
-            denominationInput.value = '';
-            priceInput.value = '';
-            paymentInput.value = '';
-            usernameInput.value = '';
-            regionInput.value = '';
-            validationMessage.textContent = '';
-            validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
-            submitBtn.disabled = true;
-            document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
-            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
-            userIdSpinner.style.display = 'none';
-            serverIdSpinner.style.display = 'none';
-            confirmationPopup.classList.add('hidden');
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginMessage = document.getElementById('loginMessage');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setCookie('token', data.token, 30);
+                    loginMessage.textContent = 'Login successful!';
+                    loginMessage.classList.remove('text-red-500');
+                    loginMessage.classList.add('text-green-500', 'show');
+                    document.getElementById('loginForm').reset();
+                    switchPage(homePage, loginPage);
+                    loadData(email);
+                } else {
+                    loginMessage.textContent = data.message || 'Invalid email or password';
+                    loginMessage.classList.remove('text-green-500');
+                    loginMessage.classList.add('text-red-500', 'show');
+                }
+            } catch (error) {
+                loginMessage.textContent = 'Error during login. Please try again.';
+                loginMessage.classList.remove('text-green-500');
+                loginMessage.classList.add('text-red-500', 'show');
+                console.error('Login error:', error);
+            }
+        });
+
+        // Register form
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const registerMessage = document.getElementById('registerMessage');
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setCookie('token', data.token, 30);
+                    registerMessage.textContent = 'Registration successful!';
+                    registerMessage.classList.remove('text-red-500');
+                    registerMessage.classList.add('text-green-500', 'show');
+                    document.getElementById('registerForm').reset();
+                    switchPage(homePage, registerPage);
+                    loadData(email);
+                } else {
+                    registerMessage.textContent = data.message || 'Error during registration';
+                    registerMessage.classList.remove('text-green-500');
+                    registerMessage.classList.add('text-red-500', 'show');
+                }
+            } catch (error) {
+                registerMessage.textContent = 'Error during registration. Please try again.';
+                registerMessage.classList.remove('text-green-500');
+                registerMessage.classList.add('text-red-500', 'show');
+                console.error('Register error:', error);
+            }
+        });
+
+        // Toggle between login and register
+        document.getElementById('showRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            switchPage(registerPage, loginPage);
+        });
+
+        document.getElementById('showLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            switchPage(loginPage, registerPage);
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${getCookie('token')}` }
+                });
+                deleteCookie('token');
+                switchPage(loginPage, homePage);
+                document.getElementById('orderForm').reset();
+                document.getElementById('orderHistory').innerHTML = '';
+                document.getElementById('profileEmail').textContent = '';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
         });
 
         // Handle denomination selection
@@ -586,7 +795,7 @@
         const confirmPopup = document.getElementById('confirmPopup');
         const cancelPopup = document.getElementById('cancelPopup');
 
-        document.getElementById('orderForm').addEventListener('submit', (e) => {
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             console.log('Form submitted');
             const product = productTitle.textContent;
@@ -611,25 +820,49 @@
             confirmationPopup.classList.remove('hidden');
             confirmationPopup.style.display = 'flex';
 
-            confirmPopup.onclick = () => {
+            confirmPopup.onclick = async () => {
                 console.log('Confirm clicked');
                 const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
                 const whatsappUrl = `https://wa.me/+6281234567890?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-                confirmationPopup.classList.add('hidden');
-                confirmationPopup.style.display = 'none';
-                switchPage(homePage, orderFormPage);
-                document.getElementById('orderForm').reset();
-                denominationInput.value = '';
-                priceInput.value = '';
-                paymentInput.value = '';
-                usernameInput.value = '';
-                regionInput.value = '';
-                validationMessage.textContent = '';
-                validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
-                submitBtn.disabled = true;
-                document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
-                document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
+                try {
+                    await fetch('/api/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${getCookie('token')}`
+                        },
+                        body: JSON.stringify({
+                            product,
+                            denomination,
+                            price,
+                            userId,
+                            serverId,
+                            username,
+                            region,
+                            paymentMethod,
+                            timestamp: new Date().toISOString()
+                        })
+                    });
+                    window.open(whatsappUrl, '_blank');
+                    confirmationPopup.classList.add('hidden');
+                    confirmationPopup.style.display = 'none';
+                    switchPage(homePage, orderFormPage);
+                    document.getElementById('orderForm').reset();
+                    denominationInput.value = '';
+                    priceInput.value = '';
+                    paymentInput.value = '';
+                    usernameInput.value = '';
+                    regionInput.value = '';
+                    validationMessage.textContent = '';
+                    validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
+                    submitBtn.disabled = true;
+                    document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
+                    document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
+                    const email = await checkAuth();
+                    if (email) loadData(email);
+                } catch (error) {
+                    console.error('Order save error:', error);
+                }
             };
 
             cancelPopup.onclick = () => {
@@ -639,8 +872,32 @@
             };
         });
 
-        // Load data on page load
-        loadData();
+        backBtn.addEventListener('click', () => {
+            switchPage(homePage, orderFormPage);
+            document.getElementById('orderForm').reset();
+            denominationInput.value = '';
+            priceInput.value = '';
+            paymentInput.value = '';
+            usernameInput.value = '';
+            regionInput.value = '';
+            validationMessage.textContent = '';
+            validationMessage.classList.remove('show', 'text-green-500', 'text-red-500');
+            submitBtn.disabled = true;
+            document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
+            userIdSpinner.style.display = 'none';
+            serverIdSpinner.style.display = 'none';
+            confirmationPopup.classList.add('hidden');
+            confirmationPopup.style.display = 'none';
+        });
+
+        // Initialize
+        checkAuth().then(email => {
+            if (email) {
+                switchPage(homePage, loginPage);
+                loadData(email);
+            }
+        });
     </script>
 </body>
 </html>
