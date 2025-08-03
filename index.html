@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLBB Gift Skin & Top Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth banner transition */
+        .banner-slide {
+            animation: slide 12s infinite ease-in-out;
+        }
+        @keyframes slide {
+            0%, 25% { opacity: 1; transform: translateX(0); }
+            30%, 45% { opacity: 0; transform: translateX(-100%); }
+            50%, 75% { opacity: 1; transform: translateX(0); }
+            80%, 100% { opacity: 0; transform: translateX(100%); }
+        }
+        .banner-slide:nth-child(2) { animation-delay: 4s; }
+        .banner-slide:nth-child(3) { animation-delay: 8s; }
+
+        /* Lightning bolt animation for flash sale */
+        .lightning {
+            animation: flash 1s infinite;
+        }
+        @keyframes flash {
+            0%, 50%, 100% { transform: translateY(0); opacity: 1; }
+            25%, 75% { transform: translateY(-5px); opacity: 0.7; }
+        }
+
+        /* Smooth hover effects for product buttons */
+        .product-btn {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Fade transition for page switching */
+        .fade-enter {
+            animation: fadeIn 0.5s ease-in;
+        }
+        .fade-exit {
+            animation: fadeOut 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto p-4 max-w-2xl">
+        <!-- Homepage -->
+        <div id="homePage" class="block">
+            <!-- Banner -->
+            <div class="relative w-full h-48 mb-6 overflow-hidden rounded-lg">
+                <img src="https://via.placeholder.com/800x200?text=Banner+1" class="banner-slide absolute w-full h-full object-cover" alt="Banner 1">
+                <img src="https://via.placeholder.com/800x200?text=Banner+2" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 2">
+                <img src="https://via.placeholder.com/800x200?text=Banner+3" class="banner-slide absolute w-full h-full object-cover opacity-0" alt="Banner 3">
+            </div>
+
+            <!-- Flash Sale -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-center mb-4">Flash Sale</h2>
+                <div class="flex items-center justify-center bg-yellow-100 p-4 rounded-lg">
+                    <svg class="w-6 h-6 text-yellow-500 lightning mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="font-semibold">Limited Offer: 86 Diamonds for Rp18,000!</span>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <h1 class="text-3xl font-bold text-center mb-8">Welcome to MLBB Store</h1>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLA">
+                    <img src="https://via.placeholder.com/50?text=MLA" class="w-10 h-10 mr-2" alt="MLA">
+                    <span>MLA</span>
+                </button>
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="MLB">
+                    <img src="https://via.placeholder.com/50?text=MLB" class="w-10 h-10 mr-2" alt="MLB">
+                    <span>MLB</span>
+                </button>
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="WDP">
+                    <img src="https://via.placeholder.com/50?text=WDP" class="w-10 h-10 mr-2" alt="WDP">
+                    <span>WDP</span>
+                </button>
+                <button class="product-btn bg-blue-500 text-white p-4 rounded-lg flex items-center justify-center" data-product="GIFT SKIN">
+                    <img src="https://via.placeholder.com/50?text=GIFT" class="w-10 h-10 mr-2" alt="GIFT SKIN">
+                    <span>GIFT SKIN</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Form -->
+        <div id="orderFormPage" class="hidden">
+            <h1 class="text-2xl font-bold text-center mb-6">Order <span id="productTitle"></span></h1>
+            <form id="orderForm" class="bg-white p-6 rounded-lg shadow-md">
+                <!-- Denomination Selection -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Select Denomination</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="86 Diamonds" data-price="20000">
+                            <img src="https://via.placeholder.com/30?text=86" alt="86 Diamonds" class="w-8 h-8 mr-2">
+                            <span>86 Diamonds</span>
+                        </button>
+                        <button type="button" class="denom-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-denom="172 Diamonds" data-price="40000">
+                            <img src="https://via.placeholder.com/30?text=172" alt="172 Diamonds" class="w-8 h-8 mr-2">
+                            <span>172 Diamonds</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="denomination" name="denomination" required>
+                    <input type="hidden" id="price" name="price" required>
+                </div>
+
+                <!-- User ID and Server -->
+                <div class="mb-4">
+                    <label for="userId" class="block text-gray-700 font-semibold mb-2">User ID</label>
+                    <input type="text" id="userId" name="userId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Enter User ID" required>
+                </div>
+                <div class="mb-4">
+                    <label for="serverId" class="block text-gray-700 font-semibold mb-2">Server ID</label>
+                    <input type="text" id="serverId" name="serverId" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" placeholder="Enter Server ID" required>
+                </div>
+                <div class="mb-4">
+                    <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
+                    <input type="text" id="username" name="username" class="w-full p-2 border rounded bg-gray-100" readonly>
+                </div>
+                <div class="mb-4">
+                    <label for="region" class="block text-gray-700 font-semibold mb-2">Region</label>
+                    <input type="text" id="region" name="region" class="w-full p-2 border rounded bg-gray-100" readonly>
+                </div>
+                <div class="mb-4">
+                    <p id="validationMessage" class="text-sm mt-1"></p>
+                </div>
+
+                <!-- Payment Method Selection -->
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-semibold mb-2">Select Payment Method</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="QRIS">
+                            <img src="https://via.placeholder.com/30?text=QRIS" alt="QRIS" class="w-8 h-8 mr-2">
+                            <span>QRIS</span>
+                        </button>
+                        <button type="button" class="payment-btn flex items-center p-2 border rounded hover:bg-gray-100 transition-colors" data-payment="Bank Transfer">
+                            <img src="https://via.placeholder.com/30?text=Bank" alt="Bank Transfer" class="w-8 h-8 mr-2">
+                            <span>Bank Transfer</span>
+                        </button>
+                    </div>
+                    <input type="hidden" id="paymentMethod" name="paymentMethod" required>
+                </div>
+
+                <!-- Submit and Back Buttons -->
+                <div class="flex gap-2">
+                    <button type="button" id="backBtn" class="w-1/2 bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition-colors">Back</button>
+                    <button type="submit" id="submitBtn" class="w-1/2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors" disabled>Proceed to WhatsApp</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Page navigation with fade animation
+        const homePage = document.getElementById('homePage');
+        const orderFormPage = document.getElementById('orderFormPage');
+        const productTitle = document.getElementById('productTitle');
+        const productButtons = document.querySelectorAll('.product-btn');
+        const backBtn = document.getElementById('backBtn');
+
+        function switchPage(show, hide) {
+            hide.classList.add('fade-exit');
+            setTimeout(() => {
+                hide.classList.add('hidden');
+                hide.classList.remove('fade-exit');
+                show.classList.remove('hidden');
+                show.classList.add('fade-enter');
+                setTimeout(() => show.classList.remove('fade-enter'), 500);
+            }, 500);
+        }
+
+        productButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                switchPage(orderFormPage, homePage);
+                productTitle.textContent = button.dataset.product;
+            });
+        });
+
+        backBtn.addEventListener('click', () => {
+            switchPage(homePage, orderFormPage);
+            // Reset form
+            document.getElementById('orderForm').reset();
+            denominationInput.value = '';
+            priceInput.value = '';
+            paymentInput.value = '';
+            usernameInput.value = '';
+            regionInput.value = '';
+            validationMessage.textContent = '';
+            submitBtn.disabled = true;
+            document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('bg-blue-200'));
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('bg-blue-200'));
+        });
+
+        // Handle denomination selection
+        const denomButtons = document.querySelectorAll('.denom-btn');
+        const denominationInput = document.getElementById('denomination');
+        const priceInput = document.getElementById('price');
+
+        denomButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                denomButtons.forEach(btn => btn.classList.remove('bg-blue-200'));
+                button.classList.add('bg-blue-200');
+                denominationInput.value = button.dataset.denom;
+                priceInput.value = button.dataset.price;
+                validateForm();
+            });
+        });
+
+        // Handle payment method selection
+        const paymentButtons = document.querySelectorAll('.payment-btn');
+        const paymentInput = document.getElementById('paymentMethod');
+
+        paymentButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                paymentButtons.forEach(btn => btn.classList.remove('bg-blue-200'));
+                button.classList.add('bg-blue-200');
+                paymentInput.value = button.dataset.payment;
+                validateForm();
+            });
+        });
+
+        // Handle user ID and server validation
+        const userIdInput = document.getElementById('userId');
+        const serverIdInput = document.getElementById('serverId');
+        const usernameInput = document.getElementById('username');
+        const regionInput = document.getElementById('region');
+        const validationMessage = document.getElementById('validationMessage');
+        const submitBtn = document.getElementById('submitBtn');
+
+        async function validateUser() {
+            const userId = userIdInput.value.trim();
+            const serverId = serverIdInput.value.trim();
+
+            if (userId && serverId) {
+                try {
+                    const url = `https://dev.luckycat.my.id/api/stalker/mobile-legend?users=${userId}&servers=${serverId}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.status && data.data && data.data.username && data.data.region) {
+                        usernameInput.value = data.data.username;
+                        regionInput.value = data.data.region;
+                        validationMessage.textContent = 'Username and region validated successfully!';
+                        validationMessage.classList.remove('text-red-500');
+                        validationMessage.classList.add('text-green-500');
+                        validateForm();
+                    } else {
+                        usernameInput.value = '';
+                        regionInput.value = '';
+                        validationMessage.textContent = 'Invalid User ID or Server ID';
+                        validationMessage.classList.remove('text-green-500');
+                        validationMessage.classList.add('text-red-500');
+                        submitBtn.disabled = true;
+                    }
+                } catch (error) {
+                    usernameInput.value = '';
+                    regionInput.value = '';
+                    validationMessage.textContent = 'Error validating username and region. Please try again.';
+                    validationMessage.classList.remove('text-green-500');
+                    validationMessage.classList.add('text-red-500');
+                    submitBtn.disabled = true;
+                }
+            } else {
+                usernameInput.value = '';
+                regionInput.value = '';
+                validationMessage.textContent = '';
+                submitBtn.disabled = true;
+            }
+        }
+
+        userIdInput.addEventListener('input', validateUser);
+        serverIdInput.addEventListener('input', validateUser);
+
+        // Validate form to enable/disable submit button
+        function validateForm() {
+            if (denominationInput.value && paymentInput.value && usernameInput.value && regionInput.value) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('orderForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const product = productTitle.textContent;
+            const denomination = denominationInput.value;
+            const price = priceInput.value;
+            const userId = userIdInput.value;
+            const serverId = serverIdInput.value;
+            const username = usernameInput.value;
+            const region = regionInput.value;
+            const paymentMethod = paymentInput.value;
+
+            const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
+            const whatsappUrl = `https://wa.me/+6281234567890?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+    </script>
+</body>
+</html>
