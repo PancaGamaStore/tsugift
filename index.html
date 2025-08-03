@@ -391,6 +391,7 @@
         async function checkAuth() {
             const token = getCookie('token');
             if (!token) {
+                console.log('No token found, redirecting to login');
                 switchPage(loginPage, homePage);
                 return null;
             }
@@ -399,10 +400,12 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
+                console.log('Validate response:', data);
                 if (response.ok && data.valid) {
                     document.getElementById('adminBtn').classList.toggle('hidden', data.role !== 'admin');
                     return { email: data.email, role: data.role };
                 } else {
+                    console.log('Invalid token, clearing cookie');
                     deleteCookie('token');
                     switchPage(loginPage, homePage);
                     return null;
@@ -432,6 +435,8 @@
                 const flashSales = await flashSalesRes.json();
                 const purchases = await purchasesRes.json();
                 const orders = email ? await ordersRes.json() : [];
+
+                console.log('Loaded data:', { products, denominations, flashSales, purchases, orders });
 
                 // Populate product grid
                 const productGrid = document.getElementById('productGrid');
@@ -581,6 +586,7 @@
                     headers: { 'Authorization': `Bearer ${getCookie('token')}` }
                 });
                 const users = await response.json();
+                console.log('Admin panel users:', users);
                 if (!response.ok) {
                     throw new Error(users.message || 'Failed to load users');
                 }
@@ -620,7 +626,7 @@
                                     alert(data.message || 'Failed to update user');
                                 }
                             } catch (error) {
-                                alert('Error updating user');
+                                alert('Error updating user: ' + error.message);
                                 console.error('Update user error:', error);
                             }
                         } else {
@@ -649,7 +655,7 @@
                                     alert(data.message || 'Failed to delete user');
                                 }
                             } catch (error) {
-                                alert('Error deleting user');
+                                alert('Error deleting user: ' + error.message);
                                 console.error('Delete user error:', error);
                             }
                         }
@@ -657,7 +663,7 @@
                 });
             } catch (error) {
                 console.error('Error loading admin panel:', error);
-                alert('Failed to load admin panel');
+                alert('Failed to load admin panel: ' + error.message);
                 switchPage(homePage, adminPage);
             }
         }
@@ -702,31 +708,42 @@
             const password = document.getElementById('loginPassword').value;
             const loginMessage = document.getElementById('loginMessage');
 
+            console.log('Attempting login with:', { email });
+
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    setCookie('token', data.token, 30);
-                    loginMessage.textContent = 'Login successful!';
-                    loginMessage.classList.remove('text-red-500');
-                    loginMessage.classList.add('text-green-500', 'show');
-                    document.getElementById('loginForm').reset();
-                    switchPage(homePage, loginPage);
-                    loadData(email);
-                } else {
-                    loginMessage.textContent = data.message || 'Invalid email or password';
+                const text = await response.text(); // Get raw response for debugging
+                console.log('Login response:', { status: response.status, text });
+                try {
+                    const data = JSON.parse(text);
+                    if (response.ok) {
+                        setCookie('token', data.token, 30);
+                        loginMessage.textContent = 'Login successful!';
+                        loginMessage.classList.remove('text-red-500');
+                        loginMessage.classList.add('text-green-500', 'show');
+                        document.getElementById('loginForm').reset();
+                        switchPage(homePage, loginPage);
+                        loadData(email);
+                    } else {
+                        loginMessage.textContent = data.message || 'Invalid email or password';
+                        loginMessage.classList.remove('text-green-500');
+                        loginMessage.classList.add('text-red-500', 'show');
+                    }
+                } catch (error) {
+                    console.error('Login response is not JSON:', text);
+                    loginMessage.textContent = 'Server error: Invalid response format';
                     loginMessage.classList.remove('text-green-500');
                     loginMessage.classList.add('text-red-500', 'show');
                 }
             } catch (error) {
-                loginMessage.textContent = 'Error during login. Please try again.';
+                console.error('Login fetch error:', error);
+                loginMessage.textContent = 'Error during login: ' + error.message;
                 loginMessage.classList.remove('text-green-500');
                 loginMessage.classList.add('text-red-500', 'show');
-                console.error('Login error:', error);
             }
         });
 
@@ -737,31 +754,42 @@
             const password = document.getElementById('registerPassword').value;
             const registerMessage = document.getElementById('registerMessage');
 
+            console.log('Attempting registration with:', { email });
+
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    setCookie('token', data.token, 30);
-                    registerMessage.textContent = 'Registration successful!';
-                    registerMessage.classList.remove('text-red-500');
-                    registerMessage.classList.add('text-green-500', 'show');
-                    document.getElementById('registerForm').reset();
-                    switchPage(homePage, registerPage);
-                    loadData(email);
-                } else {
-                    registerMessage.textContent = data.message || 'Error during registration';
+                const text = await response.text(); // Get raw response for debugging
+                console.log('Register response:', { status: response.status, text });
+                try {
+                    const data = JSON.parse(text);
+                    if (response.ok) {
+                        setCookie('token', data.token, 30);
+                        registerMessage.textContent = 'Registration successful!';
+                        registerMessage.classList.remove('text-red-500');
+                        registerMessage.classList.add('text-green-500', 'show');
+                        document.getElementById('registerForm').reset();
+                        switchPage(homePage, registerPage);
+                        loadData(email);
+                    } else {
+                        registerMessage.textContent = data.message || 'Error during registration';
+                        registerMessage.classList.remove('text-green-500');
+                        registerMessage.classList.add('text-red-500', 'show');
+                    }
+                } catch (error) {
+                    console.error('Register response is not JSON:', text);
+                    registerMessage.textContent = 'Server error: Invalid response format';
                     registerMessage.classList.remove('text-green-500');
                     registerMessage.classList.add('text-red-500', 'show');
                 }
             } catch (error) {
+                console.error('Register fetch error:', error);
                 registerMessage.textContent = 'Error during registration: ' + error.message;
                 registerMessage.classList.remove('text-green-500');
                 registerMessage.classList.add('text-red-500', 'show');
-                console.error('Register error:', error);
             }
         });
 
@@ -778,6 +806,7 @@
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', async () => {
+            console.log('Logging out');
             try {
                 await fetch('/api/logout', {
                     method: 'POST',
@@ -795,11 +824,13 @@
 
         // Admin panel navigation
         document.getElementById('adminBtn').addEventListener('click', () => {
+            console.log('Navigating to admin panel');
             switchPage(adminPage, homePage);
             loadAdminPanel();
         });
 
         document.getElementById('backToHomeBtn').addEventListener('click', () => {
+            console.log('Returning to home from admin panel');
             switchPage(homePage, adminPage);
         });
 
@@ -877,7 +908,7 @@
                     } catch (error) {
                         usernameInput.value = '';
                         regionInput.value = '';
-                        validationMessage.textContent = 'Error validating username and region. Please try again.';
+                        validationMessage.textContent = 'Error validating username and region: ' + error.message;
                         validationMessage.classList.remove('text-green-500');
                         validationMessage.classList.add('text-red-500', 'show');
                         submitBtn.disabled = true;
@@ -919,7 +950,7 @@
 
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            console.log('Form submitted');
+            console.log('Order form submitted');
             const product = productTitle.textContent;
             const denomination = denominationInput.value;
             const price = priceInput.value;
@@ -943,7 +974,7 @@
             confirmationPopup.style.display = 'flex';
 
             confirmPopup.onclick = async () => {
-                console.log('Confirm clicked');
+                console.log('Confirm order clicked');
                 const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
                 const whatsappUrl = `https://wa.me/+6281234567890?text=${encodeURIComponent(message)}`;
                 try {
@@ -988,13 +1019,14 @@
             };
 
             cancelPopup.onclick = () => {
-                console.log('Cancel clicked');
+                console.log('Cancel order clicked');
                 confirmationPopup.classList.add('hidden');
                 confirmationPopup.style.display = 'none';
             };
         });
 
         backBtn.addEventListener('click', () => {
+            console.log('Back button clicked');
             switchPage(homePage, orderFormPage);
             document.getElementById('orderForm').reset();
             denominationInput.value = '';
@@ -1015,6 +1047,7 @@
 
         // Initialize
         checkAuth().then(auth => {
+            console.log('Initial auth check:', auth);
             if (auth) {
                 switchPage(homePage, loginPage);
                 loadData(auth.email);
