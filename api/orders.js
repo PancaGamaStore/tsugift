@@ -15,9 +15,14 @@ export default async function handler(req, res) {
         return res.status(401).json({ message: 'Invalid token' });
     }
 
-    const client = new MongoClient(process.env.MONGODB_URI);
+    const client = new MongoClient(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+
     try {
         await client.connect();
+        console.log('Connected to MongoDB');
         const db = client.db('tsukoyomi_store');
         const orders = db.collection('orders');
 
@@ -34,8 +39,13 @@ export default async function handler(req, res) {
         }
     } catch (error) {
         console.error('Orders error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        if (error.name === 'MongoNetworkError') {
+            res.status(500).json({ message: 'MongoDB connection failed. Check MONGODB_URI and network settings.' });
+        } else {
+            res.status(500).json({ message: 'Internal server error: ' + error.message });
+        }
     } finally {
         await client.close();
+        console.log('MongoDB connection closed');
     }
 }
