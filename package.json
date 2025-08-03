@@ -1,0 +1,9 @@
+{
+    "name": "tsukoyomi-store",
+    "version": "1.0.0",
+    "dependencies": {
+        "mongodb": "^4.8.1",
+        "bcryptjs": "^2.4.3",
+        "jsonwebtoken": "^8.5.1"
+    }
+}
