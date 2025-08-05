@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tsukoyomi Store - MLBB Gift Skin & Top Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
     <style>
         /* Smooth banner transition */
         .banner-slide {
@@ -367,6 +369,11 @@
     </footer>
 
     <script>
+        // Initialize Firebase
+        const firebaseConfig = JSON.parse('<%- process.env.FIREBASE_CONFIG %>');
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
         // Utility to get cookie
         function getCookie(name) {
             const value = `; ${document.cookie}`;
@@ -389,33 +396,42 @@
 
         // Check authentication on page load
         async function checkAuth() {
-            const token = getCookie('token');
-            if (!token) {
-                console.log('No token found, redirecting to login');
-                switchPage(loginPage, homePage);
-                return null;
-            }
-            try {
-                const response = await fetch('/api/validate', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+            console.log('Checking auth state');
+            return new Promise((resolve) => {
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        console.log('User authenticated:', user.email);
+                        try {
+                            const response = await fetch('/api/validate', {
+                                headers: { 'Authorization': `Bearer ${getCookie('token')}` }
+                            });
+                            const data = await response.json();
+                            console.log('Validate response:', data);
+                            if (response.ok && data.valid) {
+                                document.getElementById('adminBtn').classList.toggle('hidden', data.role !== 'admin');
+                                resolve({ email: user.email, role: data.role });
+                            } else {
+                                console.log('Invalid token, signing out');
+                                await auth.signOut();
+                                deleteCookie('token');
+                                switchPage(loginPage, homePage);
+                                resolve(null);
+                            }
+                        } catch (error) {
+                            console.error('Auth check error:', error);
+                            await auth.signOut();
+                            deleteCookie('token');
+                            switchPage(loginPage, homePage);
+                            resolve(null);
+                        }
+                    } else {
+                        console.log('No user authenticated');
+                        deleteCookie('token');
+                        switchPage(loginPage, homePage);
+                        resolve(null);
+                    }
                 });
-                const data = await response.json();
-                console.log('Validate response:', data);
-                if (response.ok && data.valid) {
-                    document.getElementById('adminBtn').classList.toggle('hidden', data.role !== 'admin');
-                    return { email: data.email, role: data.role };
-                } else {
-                    console.log('Invalid token, clearing cookie');
-                    deleteCookie('token');
-                    switchPage(loginPage, homePage);
-                    return null;
-                }
-            } catch (error) {
-                console.error('Auth check error:', error);
-                deleteCookie('token');
-                switchPage(loginPage, homePage);
-                return null;
-            }
+            });
         }
 
         // Load data from JSON files and user data
@@ -606,9 +622,8 @@
                 document.querySelectorAll('.edit-user-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const email = btn.dataset.email;
-                        const newEmail = prompt('Enter new email:', email);
                         const newRole = prompt('Enter new role (user/admin):', btn.dataset.role);
-                        if (newEmail && newRole && (newRole === 'user' || newRole === 'admin')) {
+                        if (newRole && (newRole === 'user' || newRole === 'admin')) {
                             try {
                                 const response = await fetch('/api/users', {
                                     method: 'PUT',
@@ -616,7 +631,7 @@
                                         'Content-Type': 'application/json',
                                         'Authorization': `Bearer ${getCookie('token')}`
                                     },
-                                    body: JSON.stringify({ oldEmail: email, newEmail, newRole })
+                                    body: JSON.stringify({ email, newRole })
                                 });
                                 const data = await response.json();
                                 if (response.ok) {
@@ -630,7 +645,7 @@
                                 console.error('Update user error:', error);
                             }
                         } else {
-                            alert('Invalid email or role');
+                            alert('Invalid role');
                         }
                     });
                 });
@@ -711,12 +726,16 @@
             console.log('Attempting login with:', { email });
 
             try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                console.log('Firebase login successful:', user.email);
+                const idToken = await user.getIdToken();
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ idToken })
                 });
-                const text = await response.text(); // Get raw response for debugging
+                const text = await response.text();
                 console.log('Login response:', { status: response.status, text });
                 try {
                     const data = JSON.parse(text);
@@ -740,8 +759,8 @@
                     loginMessage.classList.add('text-red-500', 'show');
                 }
             } catch (error) {
-                console.error('Login fetch error:', error);
-                loginMessage.textContent = 'Error during login: ' + error.message;
+                console.error('Firebase login error:', error);
+                loginMessage.textContent = error.message || 'Error during login';
                 loginMessage.classList.remove('text-green-500');
                 loginMessage.classList.add('text-red-500', 'show');
             }
@@ -757,12 +776,16 @@
             console.log('Attempting registration with:', { email });
 
             try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                console.log('Firebase registration successful:', user.email);
+                const idToken = await user.getIdToken();
                 const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ idToken, email })
                 });
-                const text = await response.text(); // Get raw response for debugging
+                const text = await response.text();
                 console.log('Register response:', { status: response.status, text });
                 try {
                     const data = JSON.parse(text);
@@ -786,8 +809,8 @@
                     registerMessage.classList.add('text-red-500', 'show');
                 }
             } catch (error) {
-                console.error('Register fetch error:', error);
-                registerMessage.textContent = 'Error during registration: ' + error.message;
+                console.error('Firebase registration error:', error);
+                registerMessage.textContent = error.message || 'Error during registration';
                 registerMessage.classList.remove('text-green-500');
                 registerMessage.classList.add('text-red-500', 'show');
             }
@@ -808,6 +831,7 @@
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             console.log('Logging out');
             try {
+                await auth.signOut();
                 await fetch('/api/logout', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${getCookie('token')}` }
@@ -978,11 +1002,12 @@
                 const message = `New Order:\nProduct: ${product}\nDenomination: ${denomination}\nPrice: Rp${price}\nUser ID: ${userId}\nServer ID: ${serverId}\nUsername: ${username}\nRegion: ${region}\nPayment Method: ${paymentMethod}`;
                 const whatsappUrl = `https://wa.me/+6281234567890?text=${encodeURIComponent(message)}`;
                 try {
+                    const idToken = await auth.currentUser.getIdToken();
                     await fetch('/api/orders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${getCookie('token')}`
+                            'Authorization': `Bearer ${idToken}`
                         },
                         body: JSON.stringify({
                             product,
@@ -1011,8 +1036,8 @@
                     submitBtn.disabled = true;
                     document.querySelectorAll('.denom-btn').forEach(btn => btn.classList.remove('selected'));
                     document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
-                    const auth = await checkAuth();
-                    if (auth) loadData(auth.email);
+                    const authData = await checkAuth();
+                    if (authData) loadData(authData.email);
                 } catch (error) {
                     console.error('Order save error:', error);
                 }
