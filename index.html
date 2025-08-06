@@ -351,19 +351,29 @@
     </footer>
 
     <script>
-        // Initialize Firebase with error handling
+        // Initialize Firebase with detailed error handling
         let auth;
         try {
-            console.log('Attempting to initialize Firebase');
-            const firebaseConfig = JSON.parse('<%- process.env.FIREBASE_CONFIG %>');
+            console.log('Attempting to load Firebase SDK');
+            if (typeof firebase === 'undefined') {
+                throw new Error('Firebase SDK not loaded');
+            }
+            console.log('Firebase SDK loaded');
+            console.log('Parsing FIREBASE_CONFIG');
+            const firebaseConfigRaw = '<%- process.env.FIREBASE_CONFIG %>';
+            console.log('Raw FIREBASE_CONFIG:', firebaseConfigRaw);
+            const firebaseConfig = JSON.parse(firebaseConfigRaw);
+            console.log('Parsed FIREBASE_CONFIG:', firebaseConfig);
             firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
             console.log('Firebase initialized successfully');
         } catch (error) {
             console.error('Firebase initialization error:', error.message);
-            document.getElementById('registerMessage').textContent = 'Failed to initialize Firebase. Please try again later.';
+            console.error('Error stack:', error.stack);
+            const errorMessage = `Failed to initialize Firebase: ${error.message}`;
+            document.getElementById('registerMessage').textContent = errorMessage;
             document.getElementById('registerMessage').classList.add('text-red-500', 'show');
-            document.getElementById('loginMessage').textContent = 'Failed to initialize Firebase. Please try again later.';
+            document.getElementById('loginMessage').textContent = errorMessage;
             document.getElementById('loginMessage').classList.add('text-red-500', 'show');
         }
 
