@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tsukoyomi Store - MLBB Gift Skin & Top Up</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js"></script>
     <style>
-        /* (CSS tetap sama seperti sebelumnya) */
-        .banner-slide {
-            animation: slide 12s infinite ease-in-out;
-        }
+        /* CSS sama seperti sebelumnya */
+        .banner-slide { animation: slide 12s infinite ease-in-out; }
         @keyframes slide {
             0%, 25% { opacity: 1; transform: translateX(0); }
             30%, 45% { opacity: 0; transform: translateX(-100%); }
@@ -20,124 +18,32 @@
         }
         .banner-slide:nth-child(2) { animation-delay: 4s; }
         .banner-slide:nth-child(3) { animation-delay: 8s; }
-        .flash-sale-slide {
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            opacity: 0;
-            transform: translateY(20px);
-            position: absolute;
-            width: 100%;
-        }
-        .flash-sale-slide.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .lightning {
-            animation: flash 1s infinite;
-        }
+        .flash-sale-slide { transition: opacity 0.5s ease, transform 0.5s ease; opacity: 0; transform: translateY(20px); position: absolute; width: 100%; }
+        .flash-sale-slide.active { opacity: 1; transform: translateY(0); }
+        .lightning { animation: flash 1s infinite; }
         @keyframes flash {
             0%, 50%, 100% { transform: translateY(0); opacity: 1; }
             25%, 75% { transform: translateY(-5px); opacity: 0.7; }
         }
-        .spinner {
-            display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            margin-left: 8px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .product-btn, .flash-sale-btn, .denom-btn, .payment-btn {
-            transition: all 0.3s ease;
-        }
-        .product-btn:hover, .flash-sale-btn:hover, .denom-btn:hover, .payment-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .product-btn {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .selected {
-            background-color: rgba(59, 130, 246, 0.2);
-            border-color: #3b82f6;
-        }
-        .fade-enter {
-            animation: fadeIn 0.5s ease-in;
-        }
-        .fade-exit {
-            animation: fadeOut 0.5s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-10px); }
-        }
-        .validation-message {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            opacity: 0;
-            transform: translateY(5px);
-        }
-        .validation-message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .nav-btn {
-            transition: background-color 0.3s ease;
-        }
-        .nav-btn:hover {
-            background-color: #2563eb;
-        }
-        .purchase-popup {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            max-width: 300px;
-            z-index: 1000;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        .purchase-popup.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .popup-content {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            animation: popupIn 0.3s ease;
-        }
-        @keyframes popupIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        .spinner { display: none; border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-left: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .product-btn, .flash-sale-btn, .denom-btn, .payment-btn { transition: all 0.3s ease; }
+        .product-btn:hover, .flash-sale-btn:hover, .denom-btn:hover, .payment-btn:hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .product-btn { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        .selected { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
+        .fade-enter { animation: fadeIn 0.5s ease-in; }
+        .fade-exit { animation: fadeOut 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+        .validation-message { transition: opacity 0.3s ease, transform 0.3s ease; opacity: 0; transform: translateY(5px); }
+        .validation-message.show { opacity: 1; transform: translateY(0); }
+        .nav-btn { transition: background-color 0.3s ease; }
+        .nav-btn:hover { background-color: #2563eb; }
+        .purchase-popup { position: fixed; bottom: 20px; left: 20px; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); max-width: 300px; z-index: 1000; transition: opacity 0.5s ease, transform 0.5s ease; opacity: 0; transform: translateY(20px); }
+        .purchase-popup.active { opacity: 1; transform: translateY(0); }
+        .popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .popup-content { background: white; padding: 24px; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); animation: popupIn 0.3s ease; }
+        @keyframes popupIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -351,30 +257,54 @@
     </footer>
 
     <script>
+        // Wait for Firebase SDK to load
+        function waitForFirebase() {
+            return new Promise((resolve, reject) => {
+                const maxAttempts = 10;
+                let attempts = 0;
+                const interval = setInterval(() => {
+                    if (typeof firebase !== 'undefined') {
+                        clearInterval(interval);
+                        console.log('Firebase SDK loaded successfully');
+                        resolve(firebase);
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        reject(new Error('Firebase SDK failed to load after maximum attempts'));
+                    }
+                    attempts++;
+                    console.log(`Attempt ${attempts}: Checking for Firebase SDK`);
+                }, 500);
+            });
+        }
+
         // Initialize Firebase with detailed error handling
         let auth;
-        try {
-            console.log('Attempting to load Firebase SDK');
-            if (typeof firebase === 'undefined') {
-                throw new Error('Firebase SDK not loaded');
+        async function initializeFirebase() {
+            try {
+                console.log('Attempting to load Firebase SDK');
+                await waitForFirebase();
+                console.log('Parsing FIREBASE_CONFIG');
+                const firebaseConfigRaw = '<%- process.env.FIREBASE_CONFIG %>';
+                console.log('Raw FIREBASE_CONFIG:', firebaseConfigRaw);
+                let firebaseConfig;
+                try {
+                    firebaseConfig = JSON.parse(firebaseConfigRaw);
+                    console.log('Parsed FIREBASE_CONFIG:', firebaseConfig);
+                } catch (error) {
+                    throw new Error(`Invalid FIREBASE_CONFIG format: ${error.message}`);
+                }
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error.message);
+                console.error('Error stack:', error.stack);
+                const errorMessage = `Failed to initialize Firebase: ${error.message}`;
+                document.getElementById('registerMessage').textContent = errorMessage;
+                document.getElementById('registerMessage').classList.add('text-red-500', 'show');
+                document.getElementById('loginMessage').textContent = errorMessage;
+                document.getElementById('loginMessage').classList.add('text-red-500', 'show');
             }
-            console.log('Firebase SDK loaded');
-            console.log('Parsing FIREBASE_CONFIG');
-            const firebaseConfigRaw = '<%- process.env.FIREBASE_CONFIG %>';
-            console.log('Raw FIREBASE_CONFIG:', firebaseConfigRaw);
-            const firebaseConfig = JSON.parse(firebaseConfigRaw);
-            console.log('Parsed FIREBASE_CONFIG:', firebaseConfig);
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            console.log('Firebase initialized successfully');
-        } catch (error) {
-            console.error('Firebase initialization error:', error.message);
-            console.error('Error stack:', error.stack);
-            const errorMessage = `Failed to initialize Firebase: ${error.message}`;
-            document.getElementById('registerMessage').textContent = errorMessage;
-            document.getElementById('registerMessage').classList.add('text-red-500', 'show');
-            document.getElementById('loginMessage').textContent = errorMessage;
-            document.getElementById('loginMessage').classList.add('text-red-500', 'show');
         }
 
         // Utility to get cookie
@@ -1124,12 +1054,14 @@
         });
 
         // Initialize
-        checkAuth().then(auth => {
-            console.log('Initial auth check:', auth);
-            if (auth) {
-                switchPage(homePage, loginPage);
-                loadData(auth.email);
-            }
+        initializeFirebase().then(() => {
+            checkAuth().then(auth => {
+                console.log('Initial auth check:', auth);
+                if (auth) {
+                    switchPage(homePage, loginPage);
+                    loadData(auth.email);
+                }
+            });
         });
     </script>
 </body>
